@@ -1,5 +1,14 @@
 
 FetchContent_Declare(
+        qrCode
+        GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
+        GIT_TAG  v1.0.2
+        FIND_PACKAGE_ARGS 1.0 CONFIG
+        )
+set(BUILD_QRDEC OFF)
+FetchContent_MakeAvailable(qrCode)
+
+FetchContent_Declare(
 	OMQml
 	GIT_REPOSITORY https://github.com/EddyTheCo/OMClient.git
 	GIT_TAG v0.1.2

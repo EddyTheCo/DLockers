@@ -6,7 +6,7 @@
 #include<QDateTime>
 #include<QJsonValue>
 #include<QJsonObject>
-#include<set>
+#include "block/qfeatures.hpp"
 
 #include <QtCore/QtGlobal>
 #if defined(WINDOWS_BOOKI)
@@ -14,29 +14,32 @@
 #else
 #define BOOKI_EXPORT Q_DECL_IMPORT
 #endif
-class BOOKI_EXPORT Booking : public QJsonObject
+
+class BOOKI_EXPORT Booking
 {
 	public:
-		using QJsonObject::QJsonObject;
-		Booking(const QJsonObject &var=QJsonObject()):QJsonObject(var){};
-		std::vector<QDate> get_days(void)const;
-		std::vector<int> get_hours(const QDate& day)const;
-		bool check_validity(const QDateTime & ref)const;
+    Booking(const qint64 &start,const qint64 & end);
+        std::vector<QDate> getDays(void)const;
+        std::vector<int> getHours(const QDate& day)const;
+        bool checkValidity(const QDateTime & ref)const;
 
 		friend bool operator < (const Booking& b1, const Booking& b2)
 		{
-			return(b1["start"].toInteger()<b2["start"].toInteger()&&b1["finish"].toInteger()<b2["finish"].toInteger());
+            return(b1.m_start<b2.m_start&&b1.m_end<b2.m_end);
 		}
 		friend bool operator < (const Booking& b1, const QDateTime& b2)
 		{
-			return(QDateTime::fromSecsSinceEpoch(b1["finish"].toInteger())<b2);
+            return(b1.m_end<b2);
 		}
 
-		quint64 calculate_price(quint64 per_hour)const;
-		static quint64 calculate_price(const QJsonArray &books,quint64 per_hour);
-		static std::vector<Booking> from_Array(const QJsonArray &books);
-		static QJsonArray get_new_bookings_from_metadata(const QByteArray& metadata);
-		static QByteArray create_new_bookings_metadata(const QJsonArray &books);
+        quint64 price(quint64 per_hour)const;
+        static quint64 price(const QJsonArray &books,quint64 per_hour);
+        static std::vector<Booking> fromArray(const QJsonArray &books);
+        static QJsonArray metadataToBookings(const QByteArray metadata);
+        static std::shared_ptr<const qiota::qblocks::Feature> bookingsToMetadata(const QJsonArray &books);
+
+    private:
+        QDateTime m_start,m_end;
 
 };
 

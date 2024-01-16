@@ -1,19 +1,20 @@
 import QtQuick 2.0
 import QtQuick.Controls
-import booking_model
+import Esterv.Dlockers.Bookings
 
 
 SwipeView {
-    id: swipe_view
+    id: control
     required property bool can_book
 
     currentIndex: 0
 
     Repeater {
-        model: Day_model
-        delegate: Dia_delegate {
-            can_book:swipe_view.can_book
-
+        model: DayModel
+        delegate: DayDelegate {
+            can_book:control.can_book
+            width:control.width
+            height:control.height
         }
     }
 

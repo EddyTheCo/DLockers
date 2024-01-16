@@ -1,45 +1,43 @@
 import QtQuick 2.0
 import QtQuick.Controls
 import QtQuick.Layouts
-import booking_model
-import MyDesigns
+import Esterv.Dlockers.Bookings
+import Esterv.Styles.Simple
 
 
 RowLayout
 {    
-    id:root_box
+    id:control
 
-    required property bool can_book
+    required property bool canBook
     required property bool booked
     required property bool selected
     required property bool sentbook
-    required property string hour
+    required property int hour
     required property int index
-
 
     spacing:4
     Text {
         id:time_
-        text: root_box.hour
-        color:"white"
-        Layout.preferredWidth: 80
+        text: new Date('December 17, 1995 '+root_box.hour+':00:00').toLocaleTimeString(Qt.locale(),"h a");
+        color: Style.frontcolor1
         Layout.minimumWidth: 50
         Layout.fillHeight: true
-        Layout.maximumWidth: 200
-        Layout.alignment: Qt.AlignTop
+        Layout.fillWidth: true
         horizontalAlignment: Text.AlignRight
+        verticalAlignment: Text.AlignTop
+        font.pointSize:250
+        fontSizeMode:Text.Fit
     }
     Rectangle
     {
         id:line_
         Layout.preferredWidth: 25
-        Layout.preferredHeight:  2
-        Layout.maximumHeight:   20
+        Layout.minimumWidth: 5
+        Layout.preferredHeight:  3
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignTop
-        border.color:'white'
-        border.width: 1
-        color:'white'
+        color:Style.frontcolor2
     }
 
     Rectangle
@@ -47,12 +45,10 @@ RowLayout
         Layout.preferredWidth: 150
         Layout.fillHeight: true
         Layout.fillWidth: true
-        Layout.alignment: Qt.AlignHCenter
         Layout.maximumWidth: 400
-        border.color:'white'
+        border.color:Style.frontcolor2
         border.width: 1
-        height:parent.height
-        color: root_box.booked?'#e7001b':((root_box.selected?'#0f79af':'transparent'))
+        color: control.booked?'#e7001b':((root_box.selected?'#0f79af':'transparent'))
         opacity:0.7
         Rectangle
         {
@@ -61,27 +57,26 @@ RowLayout
             width:0.3*parent.width
             height: parent.height
             opacity:0.5
-            visible: root_box.sentbook
+            visible: control.sentbook
         }
 
         Text
         {
             anchors.centerIn: parent
-            text:(root_box.selected)?'-':'+'
+            text:(control.selected)?'-':'+'
             font.pointSize:20
-            visible:((!root_box.booked)&&root_box.can_book)
-            color:"white"
+            visible:((!control.booked)&&control.can_book)
+            color:Style.frontcolor1
         }
 
         MouseArea {
             anchors.fill: parent
-            enabled:root_box.can_book
+            enabled:control.can_book
             onClicked: {
-                if(!root_box.booked&&!root_box.sentbook)
+                if(!control.booked&&!control.sentbook)
                 {
-                    root_box.ListView.view.model.setProperty(root_box.index,"selected",!root_box.selected)
+                    control.ListView.view.model.setProperty(control.index,"selected",!control.selected)
                 }
-
             }
         }
     }

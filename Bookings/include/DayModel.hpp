@@ -8,58 +8,56 @@
 #include <QJsonArray>
 
 
-class BOOKI_EXPORT Day_box : public QObject
+class BOOKI_EXPORT DayBox : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QDate day READ day CONSTANT)
-    Q_PROPERTY(Hour_model* hour_model  READ hour_model CONSTANT)
+    Q_PROPERTY(HourModel* hourModel  READ hourModel CONSTANT)
     QML_ELEMENT
 
 public:
 
-    Hour_model* hour_model(void)const{return hour_model_m;}
-    QDate day(void){return day_m;}
+    HourModel* hourModel(void)const{return m_hourModel;}
+    QDate day(void){return m_day;}
 
-    Day_box(QDate day_,Hour_model * hour_model_,QObject *parent):QObject(parent),day_m(day_),hour_model_m(hour_model_){
-        hour_model_->setParent(this);
+    DayBox(QDate day,HourModel * hourModel,QObject *parent):QObject(parent),m_day(day),
+        m_hourModel(hourModel){
+        m_hourModel->setParent(this);
     };
 
 private:
-    Hour_model *  hour_model_m;
-    QDate day_m;
+    HourModel *  m_hourModel;
+    QDate m_day;
 
 };
 
-class BOOKI_EXPORT Day_model : public QAbstractListModel
+class BOOKI_EXPORT DayModel : public QAbstractListModel
 {
     Q_OBJECT    
     Q_PROPERTY(int count READ count CONSTANT)
-    Q_PROPERTY(int total_selected  READ total_selected  NOTIFY total_selected_changed)
+    Q_PROPERTY(int totalSelected  READ totalSelected  NOTIFY totalSelectedChanged)
     QML_ELEMENT
 
 public:
 
-    explicit Day_model(QObject *parent = nullptr);
+    explicit DayModel(QObject *parent = nullptr);
     enum ModelRoles {
         dayRole = Qt::UserRole + 1,
-        hour_modelRole
+        hourModelRole
     };
 
     QJsonArray getNewBookings(void);
-    Q_INVOKABLE void add_booking(const QJsonArray &books, QString id="" );
+    void addBooking(const QJsonArray &books, QString id="" );
 
-    Q_INVOKABLE void remove_sent_booking(const QString &outid);
+    void removeSentBooking(const QString &outid);
 
-    void add_to_total_selected(int sel){total_selected_+=sel; emit total_selected_changed(total_selected_);}
+    void addToTotalSelected(int sel){m_totalSelected+=sel; emit totalSelectedChanged(m_totalSelected);}
 
-    int total_selected(void)const{return total_selected_;}
+    int totalSelected(void)const{return m_totalSelected;}
 
-
-
-
-    void append(Day_box* o);
-    void pop_front(void);
-    void update_list(void);
+    void append(DayBox* o);
+    void popFront(void);
+    void updateList(void);
 
     int count() const;
     int rowCount(const QModelIndex &p) const;
@@ -71,15 +69,13 @@ public:
 
 signals:
     void countChanged(int count);
-    void total_selected_changed(int sele);
-    void hasnewbooks(QJsonArray);
-
+    void totalSelectedChanged(int sele);
 
 private:
     int m_count;
-    QList<Day_box*> m_days;
-    QTimer *timer_m;
-    int total_selected_;
-    QHash <QString,QJsonArray> sentBookings_;
+    QList<DayBox*> m_days;
+    QTimer *m_timer;
+    int m_totalSelected;
+    QHash <QString,QJsonArray> m_sentBookings;
 };
 

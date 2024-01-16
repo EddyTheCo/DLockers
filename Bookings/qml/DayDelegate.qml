@@ -1,76 +1,58 @@
 import QtQuick 2.0
 import QtQuick.Layouts
-import booking_model
-import MyDesigns
+import Esterv.Dlockers.Bookings
+import Esterv.Styles.Simple
 
-ColumnLayout
+Item
 {
 
-    id:dia_delegate
+    id:control
     required property  date day
-    required property  Hour_model hour_model
-    required property  bool can_book
+    required property  HourModel hourModel
+    required property  bool canBook
 
     Rectangle
     {
 
-        id:day_label
+        id:head_label
 
-        Layout.minimumHeight:  85
-        Layout.maximumHeight:  100
-        Layout.maximumWidth:  400
-        Layout.fillWidth: true
-        Layout.fillHeight: true
+        color: Style.backColor2
+        width:parent.width
+        height:parent.height*0.2
 
-        Layout.alignment: Qt.AlignHCenter
-        color: '#0f79af'
-        ColumnLayout
+        Text
         {
-
-            anchors.fill: day_label
-            Text
-            {
-
-                text: dia_delegate.day.toLocaleString(Qt.locale(),"ddd")
-                color:"white"
-                font.pointSize:30
-                Layout.minimumHeight:  50
-                Layout.minimumWidth:  100
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.alignment: Qt.AlignCenter
-                horizontalAlignment: Text.AlignHCenter
-            }
-            Text
-            {
-                text: dia_delegate.day.toLocaleString(Qt.locale(),"dd/MM/yy")
-                font.pointSize:20
-                color:"white"
-                Layout.minimumHeight:  25
-                Layout.minimumWidth:  100
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.alignment: Qt.AlignCenter
-                horizontalAlignment: Text.AlignHCenter
-            }
-
+            width:parent.width
+            height:parent.height*0.65
+            text: control.day.toLocaleString(Qt.locale(),"ddd")
+            anchors.bottomMargin: parent.height*0.03
+            color: Style.frontcolor1
+            font.pointSize:250
+            fontSizeMode:Text.Fit
+            horizontalAlignment: Text.AlignHCenter
+        }
+        Text
+        {
+            width:parent.width
+            height:parent.height*0.3
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: parent.height*0.02
+            text: dia_delegate.day.toLocaleString(Qt.locale(),"dd/MM/yy")
+            font.pointSize:250
+            color: Style.frontcolor1
+            fontSizeMode:Text.Fit
+            horizontalAlignment: Text.AlignHCenter
         }
 
     }
-    Horario_list_view
+    HourListView
     {
-        id:hours_container
+        id:hourlistview
 
-        Layout.fillHeight: true
-
-        Layout.minimumHeight:  400
-        Layout.maximumWidth:  400
-        Layout.fillWidth: true
-        Layout.alignment: Qt.AlignHCenter
-
-        can_book:dia_delegate.can_book
-        horario_model: dia_delegate.hour_model
-
+        width:parent.width
+        height:parent.height*0.8
+        canBook:control.canBook
+        hourModel: control.hourModel
     }
 
 

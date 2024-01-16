@@ -1,29 +1,28 @@
 #include "HourModel.hpp"
 #include <QJsonArray>
 
-Hour_model::Hour_model(int hstart, QObject *parent)
+HourModel::HourModel(int hstart, QObject *parent)
     : QAbstractListModel(parent),m_count(24)
 {
     for(auto i=hstart;i<m_count;i++)
     {
-        m_hours.push_back(new Hour_box(((i>12)?QString::number(i-12):QString::number((i==0)?12:i))
-                                       +((i<12)?" AM":" PM"),false,false,i,this));
+        m_hours.push_back(new HourBox(i,false,false,this));
     }
 
 }
 
-int Hour_model::count() const
+int HourModel::count() const
 {
     return m_hours.size();
 }
 
 
-int Hour_model::rowCount(const QModelIndex &p) const
+int HourModel::rowCount(const QModelIndex &p) const
 {
     Q_UNUSED(p)
     return m_hours.size();
 }
-QHash<int, QByteArray> Hour_model::roleNames() const {
+QHash<int, QByteArray> HourModel::roleNames() const {
     QHash<int, QByteArray> roles;
     roles[hourRole] = "hour";
     roles[bookedRole] = "booked";
@@ -32,11 +31,11 @@ QHash<int, QByteArray> Hour_model::roleNames() const {
     roles[outIdRole] = "outId";
     return roles;
 }
-QVariant Hour_model::data(const QModelIndex &index, int role) const
+QVariant HourModel::data(const QModelIndex &index, int role) const
 {
     return m_hours[index.row()]->property(roleNames().value(role));
 }
-bool Hour_model::setData(const QModelIndex &index, const QVariant &value, int role )
+bool HourModel::setData(const QModelIndex &index, const QVariant &value, int role )
 {
 
     const auto re=m_hours[index.row()]->setProperty(roleNames().value(role),value);
@@ -47,23 +46,23 @@ bool Hour_model::setData(const QModelIndex &index, const QVariant &value, int ro
 
         if(roleNames().value(role)=="selected")
         {
-            emit total_selected_changed((value.toBool())?1:-1);
+            emit totalSelectedChanged((value.toBool())?1:-1);
         }
         return true;
     }
     return false;
 }
-bool Hour_model::setProperty(int i,QString role,const QVariant value)
+bool HourModel::setProperty(int i,QString role,const QVariant value)
 {
     const auto ind=index(i);
     const auto rol=roleNames().keys(role.toUtf8());
     return setData(ind,value,rol.front());
 }
-void Hour_model::rm_sent_booked_hours(const std::vector<int>& booked_hours)
+void HourModel::rmSentBookedHours(const std::vector<int>& booked_hours)
 {
     for(auto v:booked_hours)
     {
-        auto ind=v-m_hours.front()->hour_;
+        auto ind=v-m_hours.front()->hour();
         if(ind>=0)
         {
             setProperty(ind,"sentbook",false);
@@ -71,11 +70,11 @@ void Hour_model::rm_sent_booked_hours(const std::vector<int>& booked_hours)
     }
 
 }
-void Hour_model::add_booked_hours(const QString id, const std::vector<int>& booked_hours)
+void HourModel::addBookedHours(const QString id, const std::vector<int>& booked_hours)
 {
     for(auto v:booked_hours)
     {
-        auto ind=v-m_hours.front()->hour_;
+        auto ind=v-m_hours.front()->hour();
         if(ind>=0)
         {
             if(id.isEmpty())
@@ -95,15 +94,14 @@ void Hour_model::add_booked_hours(const QString id, const std::vector<int>& book
     }
 
 }
-QModelIndex Hour_model::index(int row, int column , const QModelIndex &parent ) const
+QModelIndex HourModel::index(int row, int column , const QModelIndex &parent ) const
 {
     return createIndex(row,column);
 }
-void Hour_model::getBookingsFromSelected(QDate day,QJsonArray& var)
+void HourModel::getBookingsFromSelected(QDate day,QJsonArray& var)
 {
-
     bool init=false;
-    auto tstime=QTime(m_hours.front()->hour_,0);
+    auto tstime=QTime(m_hours.front()->hour(),0);
     QTime start_t;
     QTime finish_t;
 
@@ -141,7 +139,7 @@ void Hour_model::getBookingsFromSelected(QDate day,QJsonArray& var)
     }
 
 }
-void Hour_model::pop_front(void) {
+void HourModel::popFront(void) {
 
     if(m_hours.size())
     {
@@ -153,10 +151,10 @@ void Hour_model::pop_front(void) {
         endRemoveRows();
     }
 }
-void Hour_model::update_list(void)
+void HourModel::updateList(void)
 {
-    if(QTime::currentTime().msecsSinceStartOfDay()/60/60/1000>m_hours.front()->hour_)
+    if(QTime::currentTime().hour()>m_hours.front()->hour())
     {
-        pop_front();
+        popFront();
     }
 }

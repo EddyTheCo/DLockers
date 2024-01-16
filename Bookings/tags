@@ -1,0 +1,87 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BOOKI_EXPORT	include/Booking.hpp	13;"	d
+BOOKI_EXPORT	include/Booking.hpp	15;"	d
+Booking	include/Booking.hpp	/^		Booking(const QJsonObject &var=QJsonObject()):QJsonObject(var){};$/;"	f	class:Booking
+Booking	include/Booking.hpp	/^class BOOKI_EXPORT Booking : public QJsonObject$/;"	c
+Day_box	include/DayModel.hpp	/^    Day_box(QDate day_,Hour_model * hour_model_,QObject *parent):QObject(parent),day_m(day_),hour_model_m(hour_model_){$/;"	f	class:Day_box
+Day_box	include/DayModel.hpp	/^class BOOKI_EXPORT Day_box : public QObject$/;"	c
+Day_model	include/DayModel.hpp	/^class BOOKI_EXPORT Day_model : public QAbstractListModel$/;"	c
+Day_model	src/DayModel.cpp	/^Day_model::Day_model(QObject *parent)$/;"	f	class:Day_model
+Hour_box	include/HourModel.hpp	/^    Hour_box(QString hour_,bool booked_,bool selected_,int hour_m,QObject *parent):QObject(parent),hour_m(hour_),$/;"	f	class:Hour_box
+Hour_box	include/HourModel.hpp	/^class BOOKI_EXPORT Hour_box : public QObject$/;"	c
+Hour_model	include/HourModel.hpp	/^class BOOKI_EXPORT Hour_model : public QAbstractListModel$/;"	c
+Hour_model	src/HourModel.cpp	/^Hour_model::Hour_model(int hstart, QObject *parent)$/;"	f	class:Hour_model
+ModelRoles	include/DayModel.hpp	/^    enum ModelRoles {$/;"	g	class:Day_model
+ModelRoles	include/HourModel.hpp	/^    enum ModelRoles {$/;"	g	class:Hour_model
+add_booked_hours	src/HourModel.cpp	/^void Hour_model::add_booked_hours(const QString id, const std::vector<int>& booked_hours)$/;"	f	class:Hour_model
+add_booking	src/DayModel.cpp	/^void Day_model::add_booking(const QJsonArray& books,QString id)$/;"	f	class:Day_model
+add_to_total_selected	include/DayModel.hpp	/^    void add_to_total_selected(int sel){total_selected_+=sel; emit total_selected_changed(total_selected_);}$/;"	f	class:Day_model
+append	src/DayModel.cpp	/^void Day_model::append(Day_box *o) {$/;"	f	class:Day_model
+booked	include/HourModel.hpp	/^    bool booked() const{return booked_m;}$/;"	f	class:Hour_box
+bookedRole	include/HourModel.hpp	/^        bookedRole,selectedRole,sentbookRole,outIdRole$/;"	e	enum:Hour_model::ModelRoles
+booked_m	include/HourModel.hpp	/^    bool booked_m,selected_m,sentbook_m;$/;"	m	class:Hour_box
+calculate_price	src/Booking.cpp	/^quint64 Booking::calculate_price(const QJsonArray &books,quint64 per_hour)$/;"	f	class:Booking
+calculate_price	src/Booking.cpp	/^quint64 Booking::calculate_price(quint64 per_hour)const$/;"	f	class:Booking
+check_validity	src/Booking.cpp	/^bool Booking::check_validity(const QDateTime & ref)const$/;"	f	class:Booking
+count	src/DayModel.cpp	/^int Day_model::count() const$/;"	f	class:Day_model
+count	src/HourModel.cpp	/^int Hour_model::count() const$/;"	f	class:Hour_model
+create_new_bookings_metadata	src/Booking.cpp	/^QByteArray Booking::create_new_bookings_metadata(const QJsonArray &books)$/;"	f	class:Booking
+data	src/DayModel.cpp	/^QVariant Day_model::data(const QModelIndex &index, int role) const$/;"	f	class:Day_model
+data	src/HourModel.cpp	/^QVariant Hour_model::data(const QModelIndex &index, int role) const$/;"	f	class:Hour_model
+day	include/DayModel.hpp	/^    QDate day(void){return day_m;}$/;"	f	class:Day_box
+dayRole	include/DayModel.hpp	/^        dayRole = Qt::UserRole + 1,$/;"	e	enum:Day_model::ModelRoles
+day_m	include/DayModel.hpp	/^    QDate day_m;$/;"	m	class:Day_box
+from_Array	src/Booking.cpp	/^std::vector<Booking> Booking::from_Array(const QJsonArray &books)$/;"	f	class:Booking
+getBookingsFromSelected	src/HourModel.cpp	/^void Hour_model::getBookingsFromSelected(QDate day,QJsonArray& var)$/;"	f	class:Hour_model
+getNewBookings	src/DayModel.cpp	/^QJsonArray Day_model::getNewBookings(void)$/;"	f	class:Day_model
+get_days	src/Booking.cpp	/^std::vector<QDate> Booking::get_days(void)const$/;"	f	class:Booking
+get_hours	src/Booking.cpp	/^std::vector<int> Booking::get_hours(const QDate& day)const$/;"	f	class:Booking
+get_new_bookings_from_metadata	src/Booking.cpp	/^QJsonArray Booking::get_new_bookings_from_metadata(const QByteArray &metadata)$/;"	f	class:Booking
+hour	include/HourModel.hpp	/^    QString hour() const{return hour_m;}$/;"	f	class:Hour_box
+hourRole	include/HourModel.hpp	/^        hourRole = Qt::UserRole + 1,$/;"	e	enum:Hour_model::ModelRoles
+hour_	include/HourModel.hpp	/^    const int hour_;$/;"	m	class:Hour_box
+hour_m	include/HourModel.hpp	/^    QString hour_m;$/;"	m	class:Hour_box
+hour_model	include/DayModel.hpp	/^    Hour_model* hour_model(void)const{return hour_model_m;}$/;"	f	class:Day_box
+hour_modelRole	include/DayModel.hpp	/^        hour_modelRole$/;"	e	enum:Day_model::ModelRoles
+hour_model_m	include/DayModel.hpp	/^    Hour_model *  hour_model_m;$/;"	m	class:Day_box
+index	src/HourModel.cpp	/^QModelIndex Hour_model::index(int row, int column , const QModelIndex &parent ) const$/;"	f	class:Hour_model
+m_count	include/DayModel.hpp	/^    int m_count;$/;"	m	class:Day_model
+m_count	include/HourModel.hpp	/^    int m_count;$/;"	m	class:Hour_model
+m_days	include/DayModel.hpp	/^    QList<Day_box*> m_days;$/;"	m	class:Day_model
+m_hours	include/HourModel.hpp	/^    QList<Hour_box*> m_hours;$/;"	m	class:Hour_model
+operator <	include/Booking.hpp	/^		friend bool operator < (const Booking& b1, const Booking& b2)$/;"	f	class:Booking
+operator <	include/Booking.hpp	/^		friend bool operator < (const Booking& b1, const QDateTime& b2)$/;"	f	class:Booking
+outId	include/HourModel.hpp	/^    QString outId()const{return outId_;}$/;"	f	class:Hour_box
+outIdRole	include/HourModel.hpp	/^        bookedRole,selectedRole,sentbookRole,outIdRole$/;"	e	enum:Hour_model::ModelRoles
+outId_	include/HourModel.hpp	/^    QString outId_;$/;"	m	class:Hour_box
+pop_front	src/DayModel.cpp	/^void Day_model::pop_front(void) {$/;"	f	class:Day_model
+pop_front	src/HourModel.cpp	/^void Hour_model::pop_front(void) {$/;"	f	class:Hour_model
+remove_sent_booking	src/DayModel.cpp	/^void Day_model::remove_sent_booking(const QString& outid)$/;"	f	class:Day_model
+rm_sent_booked_hours	src/HourModel.cpp	/^void Hour_model::rm_sent_booked_hours(const std::vector<int>& booked_hours)$/;"	f	class:Hour_model
+roleNames	src/DayModel.cpp	/^QHash<int, QByteArray> Day_model::roleNames() const {$/;"	f	class:Day_model
+roleNames	src/HourModel.cpp	/^QHash<int, QByteArray> Hour_model::roleNames() const {$/;"	f	class:Hour_model
+rowCount	src/DayModel.cpp	/^int Day_model::rowCount(const QModelIndex &p) const$/;"	f	class:Day_model
+rowCount	src/HourModel.cpp	/^int Hour_model::rowCount(const QModelIndex &p) const$/;"	f	class:Hour_model
+selected	include/HourModel.hpp	/^    bool selected() const{return selected_m;}$/;"	f	class:Hour_box
+selectedRole	include/HourModel.hpp	/^        bookedRole,selectedRole,sentbookRole,outIdRole$/;"	e	enum:Hour_model::ModelRoles
+selected_m	include/HourModel.hpp	/^    bool booked_m,selected_m,sentbook_m;$/;"	m	class:Hour_box
+sentBookings_	include/DayModel.hpp	/^    QHash <QString,QJsonArray> sentBookings_;$/;"	m	class:Day_model
+sentbook	include/HourModel.hpp	/^    bool sentbook() const{return sentbook_m;}$/;"	f	class:Hour_box
+sentbookRole	include/HourModel.hpp	/^        bookedRole,selectedRole,sentbookRole,outIdRole$/;"	e	enum:Hour_model::ModelRoles
+sentbook_m	include/HourModel.hpp	/^    bool booked_m,selected_m,sentbook_m;$/;"	m	class:Hour_box
+setData	src/HourModel.cpp	/^bool Hour_model::setData(const QModelIndex &index, const QVariant &value, int role )$/;"	f	class:Hour_model
+setOutId	include/HourModel.hpp	/^    void setOutId(QString id_m){if(id_m!=outId_){outId_=id_m;emit outIdChanged();}}$/;"	f	class:Hour_box
+setProperty	src/HourModel.cpp	/^bool Hour_model::setProperty(int i,QString role,const QVariant value)$/;"	f	class:Hour_model
+set_booked	include/HourModel.hpp	/^    void set_booked(bool booked_){if(booked_!=booked_m){booked_m=booked_;emit booked_changed();}};$/;"	f	class:Hour_box
+set_selected	include/HourModel.hpp	/^    void set_selected(bool selected_){if(selected_!=selected_m){selected_m=selected_;emit selected_changed();}};$/;"	f	class:Hour_box
+set_sentbook	include/HourModel.hpp	/^    void set_sentbook(bool sentbook_){if(sentbook_!=sentbook_m){sentbook_m=sentbook_;emit sentbook_changed();}};$/;"	f	class:Hour_box
+timer_m	include/DayModel.hpp	/^    QTimer *timer_m;$/;"	m	class:Day_model
+total_selected	include/DayModel.hpp	/^    int total_selected(void)const{return total_selected_;}$/;"	f	class:Day_model
+total_selected_	include/DayModel.hpp	/^    int total_selected_;$/;"	m	class:Day_model
+update_list	src/DayModel.cpp	/^void Day_model::update_list(void)$/;"	f	class:Day_model
+update_list	src/HourModel.cpp	/^void Hour_model::update_list(void)$/;"	f	class:Hour_model

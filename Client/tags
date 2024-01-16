@@ -1,0 +1,157 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+Book_Client	include/bclient.hpp	/^class Book_Client : public QObject$/;"	c
+Book_Client	src/bclient.cpp	/^Book_Client::Book_Client(QObject *parent):QObject(parent)$/;"	f	class:Book_Client
+ConState	include/bclient.hpp	/^    enum ConState {$/;"	g	class:Server
+Connected	include/bclient.hpp	/^        Connected$/;"	e	enum:Server::ConState
+Disconnected	include/bclient.hpp	/^        Disconnected = 0,$/;"	e	enum:Server::ConState
+QT_NAMESPACE	build/.rcc/qrc_client_main_fonts.cpp	/^namespace QT_NAMESPACE {$/;"	n	file:
+QT_NAMESPACE	build/.rcc/qrc_client_main_raw_qml_0.cpp	/^namespace QT_NAMESPACE {$/;"	n	file:
+QT_NAMESPACE	build/.rcc/qrc_qmake_client.cpp	/^namespace QT_NAMESPACE {$/;"	n	file:
+QT_RCC_MANGLE_NAMESPACE	build/.rcc/qrc_client_main_fonts.cpp	4750;"	d	file:
+QT_RCC_MANGLE_NAMESPACE	build/.rcc/qrc_client_main_fonts.cpp	4754;"	d	file:
+QT_RCC_MANGLE_NAMESPACE	build/.rcc/qrc_client_main_raw_qml_0.cpp	5109;"	d	file:
+QT_RCC_MANGLE_NAMESPACE	build/.rcc/qrc_client_main_raw_qml_0.cpp	5113;"	d	file:
+QT_RCC_MANGLE_NAMESPACE	build/.rcc/qrc_qmake_client.cpp	77;"	d	file:
+QT_RCC_MANGLE_NAMESPACE	build/.rcc/qrc_qmake_client.cpp	81;"	d	file:
+QT_RCC_MANGLE_NAMESPACE0	build/.rcc/qrc_client_main_fonts.cpp	4747;"	d	file:
+QT_RCC_MANGLE_NAMESPACE0	build/.rcc/qrc_client_main_raw_qml_0.cpp	5106;"	d	file:
+QT_RCC_MANGLE_NAMESPACE0	build/.rcc/qrc_qmake_client.cpp	74;"	d	file:
+QT_RCC_MANGLE_NAMESPACE1	build/.rcc/qrc_client_main_fonts.cpp	4748;"	d	file:
+QT_RCC_MANGLE_NAMESPACE1	build/.rcc/qrc_client_main_raw_qml_0.cpp	5107;"	d	file:
+QT_RCC_MANGLE_NAMESPACE1	build/.rcc/qrc_qmake_client.cpp	75;"	d	file:
+QT_RCC_MANGLE_NAMESPACE2	build/.rcc/qrc_client_main_fonts.cpp	4749;"	d	file:
+QT_RCC_MANGLE_NAMESPACE2	build/.rcc/qrc_client_main_raw_qml_0.cpp	5108;"	d	file:
+QT_RCC_MANGLE_NAMESPACE2	build/.rcc/qrc_qmake_client.cpp	76;"	d	file:
+QT_RCC_PREPEND_NAMESPACE	build/.rcc/qrc_client_main_fonts.cpp	4746;"	d	file:
+QT_RCC_PREPEND_NAMESPACE	build/.rcc/qrc_client_main_fonts.cpp	4753;"	d	file:
+QT_RCC_PREPEND_NAMESPACE	build/.rcc/qrc_client_main_raw_qml_0.cpp	5105;"	d	file:
+QT_RCC_PREPEND_NAMESPACE	build/.rcc/qrc_client_main_raw_qml_0.cpp	5112;"	d	file:
+QT_RCC_PREPEND_NAMESPACE	build/.rcc/qrc_qmake_client.cpp	73;"	d	file:
+QT_RCC_PREPEND_NAMESPACE	build/.rcc/qrc_qmake_client.cpp	80;"	d	file:
+QmlCacheGeneratedCode	build/.rcc/qmlcache/client_main_qml/Enter_Pin_client_qml.cpp	/^namespace QmlCacheGeneratedCode {$/;"	n	file:
+QmlCacheGeneratedCode	build/.rcc/qmlcache/client_main_qml/Head_qml.cpp	/^namespace QmlCacheGeneratedCode {$/;"	n	file:
+QmlCacheGeneratedCode	build/.rcc/qmlcache/client_main_qml/LocalConf_qml.cpp	/^namespace QmlCacheGeneratedCode {$/;"	n	file:
+QmlCacheGeneratedCode	build/.rcc/qmlcache/client_main_qml/MyMapView_qml.cpp	/^namespace QmlCacheGeneratedCode {$/;"	n	file:
+QmlCacheGeneratedCode	build/.rcc/qmlcache/client_main_qml/window_qml.cpp	/^namespace QmlCacheGeneratedCode {$/;"	n	file:
+QmlCacheGeneratedCode	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^namespace QmlCacheGeneratedCode {$/;"	n	file:
+QtLoader	wasm/qtloader.js	/^function QtLoader(config)$/;"	f
+Registry	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^Registry::Registry() {$/;"	f	class:__anon1::Registry
+Registry	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^struct Registry {$/;"	s	namespace:__anon1	file:
+Sending	include/bclient.hpp	/^        Sending,$/;"	e	enum:Server::ConState
+Server	include/bclient.hpp	/^class Server : public QObject$/;"	c
+_QtLoader	wasm/qtloader.js	/^function _QtLoader(config)$/;"	f
+_esterVtech_0x2e_com_imports_client_qml_Enter_Pin_client_qml	build/.rcc/qmlcache/client_main_qml/Enter_Pin_client_qml.cpp	/^namespace _esterVtech_0x2e_com_imports_client_qml_Enter_Pin_client_qml {$/;"	n	namespace:QmlCacheGeneratedCode	file:
+_esterVtech_0x2e_com_imports_client_qml_Enter_Pin_client_qml	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^namespace _esterVtech_0x2e_com_imports_client_qml_Enter_Pin_client_qml { $/;"	n	namespace:QmlCacheGeneratedCode	file:
+_esterVtech_0x2e_com_imports_client_qml_Head_qml	build/.rcc/qmlcache/client_main_qml/Head_qml.cpp	/^namespace _esterVtech_0x2e_com_imports_client_qml_Head_qml {$/;"	n	namespace:QmlCacheGeneratedCode	file:
+_esterVtech_0x2e_com_imports_client_qml_Head_qml	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^namespace _esterVtech_0x2e_com_imports_client_qml_Head_qml { $/;"	n	namespace:QmlCacheGeneratedCode	file:
+_esterVtech_0x2e_com_imports_client_qml_LocalConf_qml	build/.rcc/qmlcache/client_main_qml/LocalConf_qml.cpp	/^namespace _esterVtech_0x2e_com_imports_client_qml_LocalConf_qml {$/;"	n	namespace:QmlCacheGeneratedCode	file:
+_esterVtech_0x2e_com_imports_client_qml_LocalConf_qml	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^namespace _esterVtech_0x2e_com_imports_client_qml_LocalConf_qml { $/;"	n	namespace:QmlCacheGeneratedCode	file:
+_esterVtech_0x2e_com_imports_client_qml_MyMapView_qml	build/.rcc/qmlcache/client_main_qml/MyMapView_qml.cpp	/^namespace _esterVtech_0x2e_com_imports_client_qml_MyMapView_qml {$/;"	n	namespace:QmlCacheGeneratedCode	file:
+_esterVtech_0x2e_com_imports_client_qml_window_qml	build/.rcc/qmlcache/client_main_qml/window_qml.cpp	/^namespace _esterVtech_0x2e_com_imports_client_qml_window_qml {$/;"	n	namespace:QmlCacheGeneratedCode	file:
+_esterVtech_0x2e_com_imports_client_qml_window_qml	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^namespace _esterVtech_0x2e_com_imports_client_qml_window_qml { $/;"	n	namespace:QmlCacheGeneratedCode	file:
+addCanvasElement	wasm/qtloader.js	/^    function addCanvasElement(element) {$/;"	f
+aotBuiltFunctions	build/.rcc/qmlcache/client_main_qml/Enter_Pin_client_qml.cpp	/^extern const QQmlPrivate::AOTCompiledFunction aotBuiltFunctions[] = {$/;"	m	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_Enter_Pin_client_qml	file:
+aotBuiltFunctions	build/.rcc/qmlcache/client_main_qml/Head_qml.cpp	/^extern const QQmlPrivate::AOTCompiledFunction aotBuiltFunctions[] = {$/;"	m	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_Head_qml	file:
+aotBuiltFunctions	build/.rcc/qmlcache/client_main_qml/LocalConf_qml.cpp	/^extern const QQmlPrivate::AOTCompiledFunction aotBuiltFunctions[] = { { 0, QMetaType::fromType<void>(), {}, nullptr } };QT_WARNING_POP$/;"	m	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_LocalConf_qml	file:
+aotBuiltFunctions	build/.rcc/qmlcache/client_main_qml/MyMapView_qml.cpp	/^extern const QQmlPrivate::AOTCompiledFunction aotBuiltFunctions[] = {$/;"	m	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_MyMapView_qml	file:
+aotBuiltFunctions	build/.rcc/qmlcache/client_main_qml/window_qml.cpp	/^extern const QQmlPrivate::AOTCompiledFunction aotBuiltFunctions[] = {$/;"	m	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_window_qml	file:
+books_	include/bclient.hpp	/^    std::vector<Booking> books_;$/;"	m	class:Server
+canLoadQt	wasm/qtloader.js	/^    function canLoadQt() {$/;"	f	function:webAssemblySupported
+checkFunds	src/bclient.cpp	/^void Book_Client::checkFunds(std::vector<qiota::Node_output>  outs)$/;"	f	class:Book_Client
+check_if_expired	src/bclient.cpp	/^void Book_Client::check_if_expired(void)$/;"	f	class:Book_Client
+check_state_output	src/bclient.cpp	/^void Server::check_state_output(const Node_output& node_output_)$/;"	f	class:Server
+clientId	include/bclient.hpp	/^    QString clientId(void)const{return m_clientId;}$/;"	f	class:Book_Client
+committedStatus	wasm/qtloader.js	/^    var committedStatus = undefined;$/;"	v
+completeLoadEmscriptenModule	wasm/qtloader.js	/^    function completeLoadEmscriptenModule(applicationName, emscriptenModuleSource, wasmModule) {$/;"	f	function:webAssemblySupported
+config.restart	wasm/qtloader.js	/^        config.restart = function() {$/;"	f
+deserialize_state	src/bclient.cpp	/^void Server::deserialize_state(const QByteArray &state)$/;"	f	class:Server
+dummy	build/.rcc/qrc_client_main_fonts.cpp	/^   } dummy;$/;"	m	namespace:__anon4	typeref:struct:__anon4::initializer	file:
+dummy	build/.rcc/qrc_client_main_raw_qml_0.cpp	/^   } dummy;$/;"	m	namespace:__anon2	typeref:struct:__anon2::initializer	file:
+dummy	build/.rcc/qrc_qmake_client.cpp	/^   } dummy;$/;"	m	namespace:__anon3	typeref:struct:__anon3::initializer	file:
+fetchCompileWasm	wasm/qtloader.js	/^    function fetchCompileWasm(filePath) {$/;"	f	function:webAssemblySupported
+fetchResource	wasm/qtloader.js	/^    function fetchResource(filePath) {$/;"	f	function:webAssemblySupported
+fetchText	wasm/qtloader.js	/^    function fetchText(filePath) {$/;"	f	function:webAssemblySupported
+fetchThenCompileWasm	wasm/qtloader.js	/^    function fetchThenCompileWasm(response) {$/;"	f	function:webAssemblySupported
+fontDpi	wasm/qtloader.js	/^    function fontDpi() {$/;"	f
+funds	include/bclient.hpp	/^    QJsonObject funds(void)const{return funds_json;}$/;"	f	class:Book_Client
+funds_	include/bclient.hpp	/^    quint64 funds_;$/;"	m	class:Book_Client
+funds_json	include/bclient.hpp	/^    QJsonObject funds_json;$/;"	m	class:Book_Client
+getServerList	src/bclient.cpp	/^void Book_Client::getServerList(void)$/;"	f	class:Book_Client
+get_server_id	src/bclient.cpp	/^QString Book_Client::get_server_id(void)const$/;"	f	class:Book_Client
+handleError	wasm/qtloader.js	/^    function handleError(error) {$/;"	f	function:webAssemblySupported
+handleStatusChange	wasm/qtloader.js	/^    function handleStatusChange() {$/;"	f
+init	wasm/js/scripts.js	/^function init() {$/;"	f
+initQTwasm	wasm/js/initQTwasm.js	/^function initQTwasm(wasm_url, app_name, rootDivSele, logoPath) {$/;"	f
+initializer	build/.rcc/qrc_client_main_fonts.cpp	/^       initializer() { QT_RCC_MANGLE_NAMESPACE(qInitResources_client_main_fonts)(); }$/;"	f	struct:__anon4::initializer
+initializer	build/.rcc/qrc_client_main_fonts.cpp	/^   struct initializer {$/;"	s	namespace:__anon4	file:
+initializer	build/.rcc/qrc_client_main_raw_qml_0.cpp	/^       initializer() { QT_RCC_MANGLE_NAMESPACE(qInitResources_client_main_raw_qml_0)(); }$/;"	f	struct:__anon2::initializer
+initializer	build/.rcc/qrc_client_main_raw_qml_0.cpp	/^   struct initializer {$/;"	s	namespace:__anon2	file:
+initializer	build/.rcc/qrc_qmake_client.cpp	/^       initializer() { QT_RCC_MANGLE_NAMESPACE(qInitResources_qmake_client)(); }$/;"	f	struct:__anon3::initializer
+initializer	build/.rcc/qrc_qmake_client.cpp	/^   struct initializer {$/;"	s	namespace:__anon3	file:
+loadEmscriptenModule	wasm/qtloader.js	/^    function loadEmscriptenModule(applicationName) {$/;"	f	function:webAssemblySupported
+lookupCachedUnit	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^const QQmlPrivate::CachedQmlUnit *Registry::lookupCachedUnit(const QUrl &url) {$/;"	f	class:__anon1::Registry
+m_clientId	include/bclient.hpp	/^    QString m_clientId;$/;"	m	class:Book_Client
+m_state	include/bclient.hpp	/^    ConState m_state;$/;"	m	class:Server
+main	client_main.cpp	/^int main(int argc, char *argv[])$/;"	f
+module	wasm/qtloader.js	/^    function module() {$/;"	f
+monitor_state	src/bclient.cpp	/^void Server::monitor_state(void)$/;"	f	class:Server
+paytoaddr_	include/bclient.hpp	/^    qblocks::c_array server_id_,paytoaddr_;$/;"	m	class:Server
+presentNft	src/bclient.cpp	/^void Server::presentNft(const QString address)$/;"	f	class:Server
+price_per_hour_	include/bclient.hpp	/^    quint64 price_per_hour_;$/;"	m	class:Server
+qCleanupResources_client_main_fonts	build/.rcc/qrc_client_main_fonts.cpp	/^int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_client_main_fonts)()$/;"	f
+qCleanupResources_client_main_raw_qml_0	build/.rcc/qrc_client_main_raw_qml_0.cpp	/^int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_client_main_raw_qml_0)()$/;"	f
+qCleanupResources_qmake_client	build/.rcc/qrc_qmake_client.cpp	/^int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_qmake_client)()$/;"	f
+qCleanupResources_qmlcache_client_main	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^int QT_MANGLE_NAMESPACE(qCleanupResources_qmlcache_client_main)() {$/;"	f
+qInitResources_client_main_fonts	build/.rcc/qrc_client_main_fonts.cpp	/^int QT_RCC_MANGLE_NAMESPACE(qInitResources_client_main_fonts)()$/;"	f
+qInitResources_client_main_raw_qml_0	build/.rcc/qrc_client_main_raw_qml_0.cpp	/^int QT_RCC_MANGLE_NAMESPACE(qInitResources_client_main_raw_qml_0)()$/;"	f
+qInitResources_qmake_client	build/.rcc/qrc_qmake_client.cpp	/^int QT_RCC_MANGLE_NAMESPACE(qInitResources_qmake_client)()$/;"	f
+qInitResources_qmlcache_client_main	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^int QT_MANGLE_NAMESPACE(qInitResources_qmlcache_client_main)() {$/;"	f
+qResourceFeatureZlib	build/.rcc/qrc_client_main_raw_qml_0.cpp	/^static inline unsigned char qResourceFeatureZlib()$/;"	f	namespace:QT_NAMESPACE
+qt_resource_data	build/.rcc/qrc_client_main_fonts.cpp	/^static const unsigned char qt_resource_data[] = {$/;"	v	file:
+qt_resource_data	build/.rcc/qrc_client_main_raw_qml_0.cpp	/^static const unsigned char qt_resource_data[] = {$/;"	v	file:
+qt_resource_data	build/.rcc/qrc_qmake_client.cpp	/^static const unsigned char qt_resource_data[] = {$/;"	v	file:
+qt_resource_name	build/.rcc/qrc_client_main_fonts.cpp	/^static const unsigned char qt_resource_name[] = {$/;"	v	file:
+qt_resource_name	build/.rcc/qrc_client_main_raw_qml_0.cpp	/^static const unsigned char qt_resource_name[] = {$/;"	v	file:
+qt_resource_name	build/.rcc/qrc_qmake_client.cpp	/^static const unsigned char qt_resource_name[] = {$/;"	v	file:
+qt_resource_struct	build/.rcc/qrc_client_main_fonts.cpp	/^static const unsigned char qt_resource_struct[] = {$/;"	v	file:
+qt_resource_struct	build/.rcc/qrc_client_main_raw_qml_0.cpp	/^static const unsigned char qt_resource_struct[] = {$/;"	v	file:
+qt_resource_struct	build/.rcc/qrc_qmake_client.cpp	/^static const unsigned char qt_resource_struct[] = {$/;"	v	file:
+removeCanvasElement	wasm/qtloader.js	/^    function removeCanvasElement(element) {$/;"	f
+removeChildren	wasm/qtloader.js	/^    function removeChildren(element) {$/;"	f	function:webAssemblySupported
+resizeCanvasElement	wasm/qtloader.js	/^    function resizeCanvasElement(element) {$/;"	f
+resizeSplitX	wasm/js/scripts.js	/^function resizeSplitX(event) {$/;"	f
+resourcePathToCachedUnit	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^    QHash<QString, const QQmlPrivate::CachedQmlUnit*> resourcePathToCachedUnit;$/;"	m	struct:__anon1::Registry	file:
+self.moduleConfig.instantiateWasm	wasm/qtloader.js	/^        self.moduleConfig.instantiateWasm = function(imports, successCallback) {$/;"	f	function:webAssemblySupported
+sendNft	src/bclient.cpp	/^void Book_Client::sendNft(Node_output out,c_array address)$/;"	f	class:Book_Client
+send_booking	src/bclient.cpp	/^void Server::send_booking(const QJsonArray books)$/;"	f	class:Server
+server_id_	include/bclient.hpp	/^    qblocks::c_array server_id_,paytoaddr_;$/;"	m	class:Server
+setCanvasContent	wasm/qtloader.js	/^    function setCanvasContent() {$/;"	f	function:_QtLoader
+setClientId	include/bclient.hpp	/^    void setClientId(QString clie){if(clie!=m_clientId){m_clientId=clie;emit clientIdChanged();}}$/;"	f	class:Book_Client
+setErrorContent	wasm/qtloader.js	/^    function setErrorContent() {$/;"	f	function:_QtLoader
+setExitContent	wasm/qtloader.js	/^    function setExitContent() {$/;"	f	function:_QtLoader
+setFontDpi	wasm/qtloader.js	/^    function setFontDpi(dpi) {$/;"	f
+setFunds	src/bclient.cpp	/^void Book_Client::setFunds(quint64 funds_m){$/;"	f	class:Book_Client
+setLoaderContent	wasm/qtloader.js	/^    function setLoaderContent() {$/;"	f	function:_QtLoader
+setStatus	wasm/qtloader.js	/^    function setStatus(status) {$/;"	f
+set_server_id	src/bclient.cpp	/^void Book_Client::set_server_id(QString server_id_m)$/;"	f	class:Book_Client
+state	include/bclient.hpp	/^    ConState state(void){return m_state;}$/;"	f	class:Server
+total_funds	include/bclient.hpp	/^    QHash<QString,quint64> total_funds;$/;"	m	class:Book_Client
+unit	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^    const QQmlPrivate::CachedQmlUnit unit = {$/;"	m	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_Enter_Pin_client_qml	file:
+unit	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^    const QQmlPrivate::CachedQmlUnit unit = {$/;"	m	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_Head_qml	file:
+unit	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^    const QQmlPrivate::CachedQmlUnit unit = {$/;"	m	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_LocalConf_qml	file:
+unit	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^    const QQmlPrivate::CachedQmlUnit unit = {$/;"	m	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_window_qml	file:
+webAssemblySupported	wasm/qtloader.js	/^    function webAssemblySupported() {$/;"	f	function:_QtLoader
+webGLSupported	wasm/qtloader.js	/^    function webGLSupported() {$/;"	f	function:webAssemblySupported
+wrapCall	build/.rcc/qmlcache/client_main_qml/Enter_Pin_client_qml.cpp	/^void wrapCall(const QQmlPrivate::AOTCompiledContext *aotContext, void *dataPtr, void **argumentsPtr, Binding &&binding)$/;"	f	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_Enter_Pin_client_qml
+wrapCall	build/.rcc/qmlcache/client_main_qml/Head_qml.cpp	/^void wrapCall(const QQmlPrivate::AOTCompiledContext *aotContext, void *dataPtr, void **argumentsPtr, Binding &&binding)$/;"	f	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_Head_qml
+wrapCall	build/.rcc/qmlcache/client_main_qml/MyMapView_qml.cpp	/^void wrapCall(const QQmlPrivate::AOTCompiledContext *aotContext, void *dataPtr, void **argumentsPtr, Binding &&binding)$/;"	f	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_MyMapView_qml
+wrapCall	build/.rcc/qmlcache/client_main_qml/window_qml.cpp	/^void wrapCall(const QQmlPrivate::AOTCompiledContext *aotContext, void *dataPtr, void **argumentsPtr, Binding &&binding)$/;"	f	namespace:QmlCacheGeneratedCode::_esterVtech_0x2e_com_imports_client_qml_window_qml
+~Registry	build/.rcc/qmlcache/client_main_qmlcache_loader.cpp	/^Registry::~Registry() {$/;"	f	class:__anon1::Registry
+~initializer	build/.rcc/qrc_client_main_fonts.cpp	/^       ~initializer() { QT_RCC_MANGLE_NAMESPACE(qCleanupResources_client_main_fonts)(); }$/;"	f	struct:__anon4::initializer
+~initializer	build/.rcc/qrc_client_main_raw_qml_0.cpp	/^       ~initializer() { QT_RCC_MANGLE_NAMESPACE(qCleanupResources_client_main_raw_qml_0)(); }$/;"	f	struct:__anon2::initializer
+~initializer	build/.rcc/qrc_qmake_client.cpp	/^       ~initializer() { QT_RCC_MANGLE_NAMESPACE(qCleanupResources_qmake_client)(); }$/;"	f	struct:__anon3::initializer

@@ -1,222 +1,135 @@
-#include"bserver.hpp"
+#include"server.hpp"
 #include <QCryptographicHash>
 #include <QDebug>
 #include<QJsonDocument>
 #include<QTimer>
 #include <QRandomGenerator>
-#include"Day_model.hpp"
-#include<account.hpp>
-#include<nodeConnection.hpp>
-#if defined(RPI_SERVER)
+
+#include "qwallet.hpp"
+#include"nodeConnection.hpp"
+#include "account.hpp"
 #include"lgpio.h"
+
 #include <QGuiApplication>
 #if QT_CONFIG(permissions)
 #include <QPermission>
 #endif
-#endif
 
-using namespace qiota::qblocks;
 
-using namespace qiota;
-using namespace qcrypto;
-
-void Book_Server::init()
+void BookServer::checkStateOutput(c_array outId, QString payAddress,std::shared_ptr<const qblocks::Output> output)
 {
-    auto info=Node_Conection::instance()->rest()->get_api_core_v2_info();
-    QObject::connect(info,&Node_info::finished,reciever,[=]( ){
-
-        auto resp2=Node_Conection::instance()->mqtt()->
-                     get_outputs_unlock_condition_address("address/"+Account::instance()->addr_bech32({0,0,0},info->bech32Hrp));
-        connect(resp2,&ResponseMqtt::returned,reciever,[=](QJsonValue data)
-                {
-                    if(!started)
-                    {
-                        this->handle_init_funds();
-                    }
-                    checkFunds({Node_output(data)});
-
-                });
-        this->handle_init_funds();
-
-        auto resp=Node_Conection::instance()->mqtt()->
-                    get_outputs_unlock_condition_address("address/"+Account::instance()->addr_bech32({0,0,1},info->bech32Hrp));
-        QObject::connect(resp,&ResponseMqtt::returned,reciever,[=](QJsonValue data){
-
-            if(state_==Ready)
+    auto metfeau=output->get_feature_(Feature::Metadata_typ);
+    if(metfeau)
+    {
+        auto metadata_feature=std::static_pointer_cast<const Metadata_Feature>(metfeau);
+        auto metadata=metadata_feature->data();
+        const auto var=QJsonDocument::fromJson(metadata).object();
+        if(!var["b"].isUndefined()&&var["b"].isArray())
+        {
+            const auto bookarray=var["b"].toArray();
+            const auto vec=Booking::fromArray(bookarray);
+            for(const auto& v:vec)
             {
-                handle_new_book(Node_output(data));
+                m_books.insert(v);
+            }
+            m_dayModel->addBooking(HourBox::Occupied,bookarray);
+            m_pubId=outId;
+            monitorPayments(payAddress);
+        }
+    }
+}
+void BookServer::monitorPayments(QString payAddress)
+{
+    qDebug()<<"BookServer::monitorPayments:"<<payAddress;
+    connect(this,&BookServer::stateChanged,this,[=](){
+        qDebug()<<"BookServer::stateChanged:"<<m_state;
+        while (m_state==Ready&&!queue.empty()) {
+            const auto nout=queue.front();
+            handleNewBook(nout.metadata().outputid_,nout.output());
+            queue.pop();
+        }
+    });
+
+    auto resp=NodeConnection::instance()->mqtt()->
+                get_outputs_unlock_condition_address("address/"+payAddress);
+    QObject::connect(resp,&ResponseMqtt::returned,this,[=](QJsonValue data){
+        qDebug()<<"ResponseMqtt::returned:"<<m_state;
+        if(m_state==Ready)
+        {
+            const auto nout=Node_output(data);
+            handleNewBook(nout.metadata().outputid_,nout.output());
+        }
+        else
+        {
+            queue.push(Node_output(data));
+        }
+    });
+
+}
+void BookServer::restart(void)
+{
+    auto info=NodeConnection::instance()->rest()->get_api_core_v2_info();
+    connect(info,&Node_info::finished,this,[=]( ){
+
+        const auto serverId=Wallet::instance()->addresses().begin()->second->getAddressBech32();
+        const auto payAddress=(++Wallet::instance()->addresses().begin())->second->getAddressBech32();
+        auto nodeOutputs=NodeConnection::instance()->rest()->
+                           get_outputs<Output::Basic_typ>("address="+serverId+
+                                                          "&hasStorageDepositReturn=false&hasTimelock=false&hasExpiration=false&sender="+
+                                                          serverId+"&tag="+fl_array<quint8>("DLockers").toHexString());
+
+        connect(nodeOutputs,&Node_outputs::finished,this,[=]( ){
+            qDebug()<<"Node_outputs::finished:"<<nodeOutputs->outs_.size();
+            if(nodeOutputs->outs_.size())
+            {
+                const auto nout=nodeOutputs->outs_.front();
+                checkStateOutput(nout.metadata().outputid_,payAddress,nout.output());
+
             }
             else
             {
-                queue.push(Node_output(data));
-            }
-        });
-        info->deleteLater();
-    });
-}
-void Book_Server::check_state_output(const std::vector<Node_output> node_output_s)
-{
-    if(node_output_s.size())
-    {
-        const auto basic_output_=node_output_s.front().output();
-        auto metfeau=basic_output_->get_feature_(Feature::Metadata_typ);
-        if(metfeau)
-        {
-            auto metadata_feature=std::static_pointer_cast<const Metadata_Feature>(metfeau);
-            auto metadata=metadata_feature->data();
-            deserialize_state(metadata);
-        }
-
-    }
-}
-void Book_Server::get_restart_state(void)
-{
-    auto info=Node_Conection::instance()->rest()->get_api_core_v2_info();
-    connect(info,&Node_info::finished,reciever,[=]( ){
-        setServerId(Account::instance()->addr_bech32({0,0,0},info->bech32Hrp));
-        auto node_outputs_=new Node_outputs();
-        connect(node_outputs_,&Node_outputs::finished,reciever,[=]( ){
-            check_state_output(node_outputs_->outs_);
-            init();
-            node_outputs_->deleteLater();
-        });
-        Node_Conection::instance()->rest()->get_outputs<Output::Basic_typ>(node_outputs_,"address="+
-                                                                                              Account::instance()->addr_bech32({0,0,0},info->bech32Hrp)+
-                                                                                              "&hasStorageDepositReturn=false&hasTimelock=false&hasExpiration=false&sender="+
-                                                                                              Account::instance()->addr_bech32({0,0,0},info->bech32Hrp)+"&tag="+fl_array<quint8>("state").toHexString());
-        auto node_outputs=new Node_outputs();
-        connect(node_outputs,&Node_outputs::finished,reciever,[=]( ){
-            checkFunds(node_outputs->outs_);
-            node_outputs->deleteLater();
-        });
-        Node_Conection::instance()->rest()->get_outputs<Output::Basic_typ>(node_outputs,"address="+
-                                                                                             Account::instance()->addr_bech32({0,0,0},info->bech32Hrp));
-
-        info->deleteLater();
-    });
-
-}
-void Book_Server::restart(void)
-{
-    if(Node_Conection::instance()->state()==Node_Conection::Connected)
-    {
-        if(reciever)reciever->deleteLater();
-        reciever=new QObject(this);
-        setFunds(0);
-        setminFunds(1000000);
-        total_funds.clear();
-        payments_=QJsonArray();
-        connect(this,&Book_Server::stateChanged,reciever,[=](){
-            while (state_==Ready&&!queue.empty()) {
-                handle_new_book(queue.front());
-                queue.pop();
-            }
-        });
-        get_restart_state();
-    }
-
-}
-void Book_Server::checkFunds(std::vector<qiota::Node_output>  outs)
-{
-    quint64 total=0;
-    for(const auto& v:outs)
-    {
-        std::vector<Node_output> var{v};
-        auto bundle= Account::instance()->get_addr({0,0,0});
-        bundle.consume_outputs(var);
-
-        if(bundle.amount)
-        {
-            total+=bundle.amount;
-            total_funds.insert(v.metadata().outputid_.toHexString(),bundle.amount);
-            auto resp=Node_Conection::instance()->mqtt()->get_outputs_outputId(v.metadata().outputid_.toHexString());
-            connect(resp,&ResponseMqtt::returned,reciever,[=](QJsonValue data){
-                const auto node_output=Node_output(data);
-                if(node_output.metadata().is_spent_)
+                if(Wallet::instance()->amount())
                 {
-                    auto it=total_funds.constFind(node_output.metadata().outputid_.toHexString());
-                    if(it!=total_funds.cend())
-                    {
-                        setFunds(funds_-it.value());
-                        total_funds.erase(it);
-                    }
-                    resp->deleteLater();
+                    handleInitFunds(payAddress);
                 }
-
-            });
-        }
-        if(bundle.to_expire.size())
-        {
-            const auto unixtime=bundle.to_expire.front();
-            const auto triger=(unixtime-QDateTime::currentDateTime().toSecsSinceEpoch())*1000;
-            QTimer::singleShot(triger,reciever,[=](){
-                auto it=total_funds.constFind(v.metadata().outputid_.toHexString());
-                if(it!=total_funds.cend())
+                else
                 {
-                    setFunds(funds_-it.value());
-                    total_funds.erase(it);
+                    connect(Wallet::instance(),&Wallet::amountChanged,this,[=]()
+                            {
+                                handleInitFunds(payAddress);
+                            });
                 }
-            });
-        }
-        if(bundle.to_unlock.size())
-        {
-            const auto unixtime=bundle.to_unlock.front();
-            const auto triger=(unixtime-QDateTime::currentDateTime().toSecsSinceEpoch())*1000;
-            QTimer::singleShot(triger+5000,reciever,[=](){
-                auto resp=Node_Conection::instance()->mqtt()->get_outputs_outputId(v.metadata().outputid_.toHexString());
-                connect(resp,&ResponseMqtt::returned,reciever,[=](QJsonValue data){
-                    const auto node_output=Node_output(data);
-                    checkFunds({node_output});
-                    resp->deleteLater();
-                });
-            });
-        }
-
-    }
-    setFunds(funds_+total);
-}
-void Book_Server::setFunds(quint64 funds_m){
-
-    if(funds_!=funds_m||funds_m==0)
-    {
-        funds_=funds_m;
-        auto info=Node_Conection::instance()->rest()->get_api_core_v2_info();
-        QObject::connect(info,&Node_info::finished,reciever,[=]( ){
-            funds_json=info->amount_json(funds_);
-            emit fundsChanged();
-            info->deleteLater();
+            }
+            nodeOutputs->deleteLater();
         });
-    }
-}
-void Book_Server::setminFunds(quint64 funds_m){
-    auto info=Node_Conection::instance()->rest()->get_api_core_v2_info();
-    QObject::connect(info,&Node_info::finished,reciever,[=]( ){
-        minfunds_json=info->amount_json(funds_m);
-        emit minfundsChanged();
         info->deleteLater();
     });
-
 }
-Book_Server::Book_Server(QObject *parent):QObject(parent),price_per_hour_(10000),state_(Ready),reciever(nullptr),started(false),
-    open(false)
-#if defined(RPI_SERVER)
-    ,m_rpi_server(true),m_GeoCoord(41.902229,12.458100)
-#else
-    ,m_rpi_server(false)
-#endif
 
+
+BookServer::BookServer(QObject *parent):QObject(parent),m_pph(10000),m_GeoCoord(41.952229,12.58100),m_state(Ready),m_open(false),m_dayModel(new DayModel(this))
 {
-#if defined(RPI_SERVER)
+
+    Account::instance()->setSeed("outer broccoli mango tourist hungry venue industry twin grass pluck culture alley crane shy differ cage annual fit also diagram salmon spring original wild");
+    Wallet::instance()->setAddressRange(2);
     checkLPermission();
-#endif
+    connect(Wallet::instance(),&Wallet::synced,this,[=](){
+        qDebug()<<"naddresses:"<<Wallet::instance()->nRootAddresses();
+        if(Wallet::instance()->nRootAddresses()==2)
+        {
+            disconnect(Wallet::instance(),&Wallet::synced,this,nullptr);
+            restart();
+        }
+    });
+
+
 }
-#if defined(RPI_SERVER)
-void Book_Server::initGPS(void)
+
+void BookServer::initGPS(void)
 {
     PosSource = QGeoPositionInfoSource::createSource("nmea", {std::make_pair("nmea.source",SERIAL_PORT_NAME)}, this);
     if(!PosSource)PosSource=QGeoPositionInfoSource::createDefaultSource(this);
     if (PosSource) {
-        qDebug()<<"PosSource:"<<PosSource->sourceName();
         connect(PosSource,&QGeoPositionInfoSource::positionUpdated,
                 this, [=](const QGeoPositionInfo &update){
                     m_GeoCoord=update.coordinate();
@@ -231,7 +144,7 @@ void Book_Server::initGPS(void)
         PosSource->startUpdates();
     }
 }
-void Book_Server::checkLPermission(void)
+void BookServer::checkLPermission(void)
 {
 
 #if QT_CONFIG(permissions)
@@ -241,49 +154,110 @@ void Book_Server::checkLPermission(void)
     switch (qApp->checkPermission(lPermission)) {
     case Qt::PermissionStatus::Undetermined:
         qApp->requestPermission(lPermission, this,
-                                &Book_Server::checkLPermission);
+                                &BookServer::checkLPermission);
         return;
     case Qt::PermissionStatus::Denied:
         return;
     case Qt::PermissionStatus::Granted:
-        initGPS();
+        //initGPS();
         return;
     }
 #else
-    initGPS();
+    //initGPS();
 #endif
 
-
-
-}
-#endif
-void Book_Server::clean_state(void)
-{
-    for(const auto& v: books_)
-    {
-        if(!v.check_validity(QDateTime::currentDateTime()))
-        {
-            books_.erase(books_.find(v));
-        }
-    }
 }
 
-std::shared_ptr<qblocks::Output> Book_Server::get_publish_output(const quint64 &amount)const
+void BookServer::cleanState(void)
+{
+    qDebug()<<"BookServer::cleanState";
+    const auto now=QDateTime::currentDateTime();
+    const auto nBook=Booking(now.toSecsSinceEpoch(),now.toSecsSinceEpoch());
+    auto lbound=m_books.lower_bound(nBook);
+    m_books.erase(m_books.begin(),lbound);
+}
+
+std::shared_ptr<qblocks::Output> BookServer::getPublishOutput()const
 {
 
-    const fl_array<quint8> tag("state");
-    const auto state=serialize_state();
-    const auto eddAddr=Account::instance()->get_addr({0,0,0}).get_address();
+    const fl_array<quint8> tag("DLockers");
+    const auto state=serializeState();
+    const auto eddAddr=Wallet::instance()->addresses().begin()->second->getAddress();
     auto sendFea=Feature::Sender(eddAddr);
     auto tagFea=Feature::Tag(tag);
 
     auto metFea=Feature::Metadata(state);
 
     auto addUnlcon=Unlock_Condition::Address(eddAddr);
-    return Output::Basic(amount,{addUnlcon},{},{sendFea,metFea,tagFea});
+    return Output::Basic(0,{addUnlcon},{},{sendFea,metFea,tagFea});
 }
-#if defined(RPI_SERVER)
-void Book_Server::open_rpi_box(void)
+QString BookServer::getOpenAddress()const{return m_openAddress;}
+void BookServer::getNewOpenAddress()
+{
+    static ResponseMqtt* resp=nullptr;
+    if(resp)resp->deleteLater();
+    setOpen(false);
+    m_openAddress.clear();
+    emit openAddressChanged();
+
+    auto info=NodeConnection::instance()->rest()->get_api_core_v2_info();
+    connect(info,&Node_info::finished,this,[=]( ){
+
+        quint32 r1 = QRandomGenerator::global()->generate();
+        quint32 r2 = QRandomGenerator::global()->generate();
+
+        m_openAddress=Account::instance()->getAddrBech32({100,r1,r2},info->bech32Hrp);
+
+        emit openAddressChanged();
+        resp=NodeConnection::instance()->mqtt()->
+               get_outputs_unlock_condition_address("address/"+m_openAddress);
+
+        QObject::connect(resp,&ResponseMqtt::returned,this,[=](QJsonValue data){
+            checkNftToOpen(Node_output(data).output());
+            resp->deleteLater();
+            resp=nullptr;
+        });
+        info->deleteLater();
+    });
+}
+void BookServer::checkNftToOpen(std::shared_ptr<const qblocks::Output> output)
+{
+    if(output->type()==Output::NFT_typ)
+    {
+        const auto issuerfeature=output->get_immutable_feature_(Feature::Issuer_typ);
+        if(issuerfeature)
+        {
+            const auto issuer=std::static_pointer_cast<const Issuer_Feature>(issuerfeature)->issuer()->addr();
+            if(issuer==Wallet::instance()->addresses().begin()->second->getAddress()->addr())
+            {
+                const auto metfeature=output->get_immutable_feature_(Feature::Metadata_typ);
+                if(metfeature)
+                {
+                    const auto metadata=std::static_pointer_cast<const Metadata_Feature>(metfeature)->data();
+
+                    auto books=Booking::metadataToBookings(metadata);
+
+                    auto vec=Booking::fromArray(books);
+                    auto now=QDateTime::currentDateTime();
+
+                    for(const auto& book: vec )
+                    {
+                        if(book.contains(now))
+                        {
+                            openBox();
+                            m_open=true;
+                            emit openChanged();
+                            break;
+                        }
+                    }
+
+                }
+
+            }
+        }
+    }
+}
+void BookServer::openBox(void)
 {
     auto chip = lgGpiochipOpen(0);
     lgGpioSetUser(chip, "esterv");
@@ -297,313 +271,192 @@ void Book_Server::open_rpi_box(void)
     });
 
 }
-#endif
-void Book_Server::check_nft_to_open(Node_output node_out)
+
+
+
+void BookServer::handleNewBook(c_array bookId,std::shared_ptr<const qblocks::Output> bookOut)
 {
-
-    if(node_out.output()->type()==Output::NFT_typ)
+    qDebug()<<"BookServer::handleNewBook";
+    setState(Publishing);
+    QTimer::singleShot(15000,this,[=](){setState(Ready);});
+    if(bookOut->type()==Output::Basic_typ)
     {
-        const auto output=node_out.output();
-        const auto issuerfeature=output->get_immutable_feature_(Feature::Issuer_typ);
-        if(issuerfeature)
-        {
-            const auto issuer=std::static_pointer_cast<const Issuer_Feature>(issuerfeature)->issuer()->addr();
-            if(issuer==Account::instance()->get_addr({0,0,0}).get_address()->addr())
-            {
-
-                const auto metfeature=output->get_immutable_feature_(Feature::Metadata_typ);
-                if(metfeature)
-                {
-                    const auto metadata=std::static_pointer_cast<const Metadata_Feature>(metfeature)->data();
-
-                    auto books=Booking::get_new_bookings_from_metadata(metadata);
-
-                    auto vec=Booking::from_Array(books);
-                    auto now=QDateTime::currentDateTime().toSecsSinceEpoch();
-
-
-                    for(auto book: vec )
-                    {
-                        if(book["finish"].toInteger()>=now&&book["start"].toInteger()<=now)
-                        {
-#if defined(RPI_SERVER)
-                            open_rpi_box();
-#endif
-                            open=true;
-                            emit openChanged();
-                            break;
-
-                        }
-                    }
-
-                }
-
-            }
-        }
-    }
-}
-
-void Book_Server::handle_new_book(Node_output node_out)
-{
-    set_state(Publishing);
-    QTimer::singleShot(15000,this,[=](){set_state(Ready);});
-    if(node_out.output()->type()==Output::Basic_typ)
-    {
-        auto info=Node_Conection::instance()->rest()->get_api_core_v2_info();
+        auto info=NodeConnection::instance()->rest()->get_api_core_v2_info();
         connect(info,&Node_info::finished,this,[=]( ){
-
-            auto publish_node_outputs_= new Node_outputs();
-
-            connect(publish_node_outputs_,&Node_outputs::finished,this,[=]( ){
-                const auto basic_output_=node_out.output();
-                const auto metfeature=basic_output_->get_feature_(Feature::Metadata_typ);
-                if(metfeature)
+            const auto metFea=bookOut->get_feature_(Feature::Metadata_typ);
+            if(metFea)
+            {
+                auto metadata=std::static_pointer_cast<const Metadata_Feature>(metFea)->data();
+                const auto sendfeature=bookOut->get_feature_(Feature::Sender_typ);
+                if(sendfeature)
                 {
-                    auto metadata_feature=std::static_pointer_cast<const Metadata_Feature>(metfeature);
-                    auto metadata=metadata_feature->data();
+                    auto sender=std::static_pointer_cast<const Sender_Feature>(sendfeature)->sender();
 
-                    auto new_books=Booking::get_new_bookings_from_metadata(metadata);
-
-                    const auto now=QDateTime::currentDateTime().toSecsSinceEpoch();
-                    const auto sendfeature=basic_output_->get_feature_(Feature::Sender_typ);
-                    if(sendfeature)
+                    auto newBooks=Booking::metadataToBookings(metadata);
+                    if(!newBooks.isEmpty())
                     {
-                        auto sender=std::static_pointer_cast<const Sender_Feature>(sendfeature)->sender();
+                        QJsonArray varBooks;
+                        auto vec=Booking::fromArray(newBooks);
+                        quint64 price=0;
+                        quint64 maxB=0;
+
+                        InputSet inputSet;
+                        StateOutputs stateOutputs;
+                        quint64 consumedAmount=0;
+                        quint64 stateAmount=0;
+                        consumedAmount+=Wallet::instance()->
+                                          consume(inputSet,stateOutputs,0,{Output::Basic_typ},{bookId});
+                        qDebug()<<"consumedAmount1:"<<consumedAmount;
+                        for(auto i=0;i<vec.size();i++)
+                        {
+                            if(vec.at(i).isValid()&&vec.at(i).end()<QDateTime::currentDateTime().addDays(7))
+                            {
+                                auto pair=m_books.insert(vec.at(i));
+                                if(pair.second)
+                                {
+                                    price+=vec.at(i).price(m_pph);
+
+                                    if(consumedAmount<price)
+                                    {
+                                        m_books.erase(vec.at(i));
+                                        price-=vec.at(i).price(m_pph);
+                                        break;
+                                    }
+                                    varBooks.push_back(newBooks.at(2*i));
+                                    varBooks.push_back(newBooks.at(2*i+1));
+                                    if(newBooks.at(2*i+1).toInteger()>maxB)
+                                        maxB=newBooks.at(2*i+1).toInteger();
+                                }
+                            }
+                        }
 
 
-                        if(!new_books.isEmpty())
+                        if(!varBooks.isEmpty())
                         {
 
-                            auto output=std::vector<Node_output>{node_out};
-                            auto payment_bundle=Account::instance()->get_addr({0,0,1});
-                            payment_bundle.consume_outputs({output});
 
-                            QJsonArray varBooks;
-                            auto vec=Booking::from_Array(new_books);
-                            quint64 price=0;
-                            quint64 maxB=0;
+                            const auto eddAddr=Wallet::instance()->addresses().begin()->second->getAddress();
+                            const auto issuerFea=Feature::Issuer(eddAddr);
 
-                            for(auto i=0;i<vec.size();i++)
+                            auto addUnlcon=Unlock_Condition::Address(sender);
+                            auto expirUnloc=Unlock_Condition::Expiration(maxB+100,eddAddr);
+                            auto varretUlock=Unlock_Condition::Storage_Deposit_Return(eddAddr,0);
+                            auto metFea=Booking::bookingsToMetadata(varBooks);
+                            auto varNftOut= Output::NFT(0,{addUnlcon,varretUlock,expirUnloc},{},{issuerFea,metFea});
+                            auto ret_amount=Client::get_deposit(varNftOut,info);
+
+                            auto retUlock=Unlock_Condition::Storage_Deposit_Return(eddAddr,ret_amount);
+                            auto NftOut= Output::NFT(0,{addUnlcon,retUlock,expirUnloc},{},{issuerFea,metFea});
+                            NftOut->amount_=Client::get_deposit(NftOut,info)+consumedAmount-price;
+
+                            consumedAmount+=Wallet::instance()->
+                                              consume(inputSet,stateOutputs,0,{Output::Basic_typ},{m_pubId});
+
+                            const auto pubOut=getPublishOutput();
+                            qDebug()<<"consumedAmount2:"<<consumedAmount;
+                            qDebug()<<"NftOut->amount_:"<<NftOut->amount_;
+                            if(consumedAmount>=NftOut->amount_+Client::get_deposit(pubOut,info))
                             {
-                                if(vec[i]["finish"].toInteger()>vec[i]["start"].toInteger()&&
-                                    vec[i]["start"].toInteger()>0&&
-                                    vec[i]["finish"].toInteger()<QDateTime::currentDateTime().addDays(7).toSecsSinceEpoch())
-                                {
-                                    auto pair=books_.insert(vec.at(i));
-                                    if(pair.second)
-                                    {
-                                        price+=vec.at(i).calculate_price(price_per_hour_);
+                                pubOut->amount_=consumedAmount-NftOut->amount_;
+                                pvector<const Output> theOutputs{pubOut,NftOut};
 
-                                        if(payment_bundle.amount<price)
-                                        {
-                                            books_.erase(vec.at(i));
-                                            price-=vec.at(i).calculate_price(price_per_hour_);
-                                            break;
-                                        }
-                                        varBooks.push_back(new_books.at(2*i));
-                                        varBooks.push_back(new_books.at(2*i+1));
-                                        if(new_books.at(2*i+1).toInteger()>maxB)maxB=new_books.at(2*i+1).toInteger();
-                                    }
-                                }
+                                auto payloadusedids=Wallet::instance()->createTransaction(inputSet,info,theOutputs);
+                                auto block=Block(payloadusedids.first);
+
+                                auto transactionid=payloadusedids.first->get_id();
+
+                                auto resp=NodeConnection::instance()->mqtt()->get_subscription("transactions/"+transactionid.toHexString() +"/included-block");
+                                connect(resp,&ResponseMqtt::returned,this,[=](auto var){
+                                    setState(Ready);
+                                    resp->deleteLater();
+                                });
+                                transactionid.append(quint16(0));
+                                m_pubId=transactionid;
+                                qDebug()<<"outId:"<<m_pubId.toHexString();
+                                NodeConnection::instance()->rest()->send_block(block);
+
+                                m_dayModel->addBooking(HourBox::Occupied,varBooks);
+                                cleanState();
+                                qDebug()<<"finished";
                             }
-
-
-                            if(!varBooks.isEmpty())
-                            {
-                                const auto eddAddr=Account::instance()->get_addr({0,0,0}).get_address();
-                                const auto issuerFea=Feature::Issuer(eddAddr);
-
-                                auto addUnlcon=Unlock_Condition::Address(sender);
-                                auto expirUnloc=Unlock_Condition::Expiration(maxB+100,eddAddr);
-                                auto varretUlock=Unlock_Condition::Storage_Deposit_Return(eddAddr,0);
-                                auto nftmetadata=Booking::create_new_bookings_metadata(varBooks);
-                                auto metFea=Feature::Metadata(nftmetadata);
-                                auto varNftOut= Output::NFT(0,{addUnlcon,varretUlock,expirUnloc},{},{issuerFea,metFea});
-                                auto ret_amount=Client::get_deposit(varNftOut,info);
-
-                                auto retUlock=Unlock_Condition::Storage_Deposit_Return(eddAddr,ret_amount);
-                                auto NftOut= Output::NFT(0,{addUnlcon,retUlock,expirUnloc},{},{issuerFea,metFea});
-                                NftOut->amount_=Client::get_deposit(NftOut,info)+payment_bundle.amount-price;
-
-                                auto publish_bundle=Account::instance()->get_addr({0,0,0});
-                                publish_bundle.consume_outputs(publish_node_outputs_->outs_);
-
-                                const auto pubOut=get_publish_output(0);
-
-                                if(publish_bundle.amount+payment_bundle.amount>=NftOut->amount_+Client::get_deposit(pubOut,info))
-                                {
-                                    pubOut->amount_=publish_bundle.amount+payment_bundle.amount-NftOut->amount_;
-                                    auto Inputs_Commitment=Block::get_inputs_Commitment(payment_bundle.Inputs_hash+publish_bundle.Inputs_hash);
-
-
-                                    pvector<const Output> the_outputs_{pubOut,NftOut};
-                                    the_outputs_.insert( the_outputs_.end(), publish_bundle.ret_outputs.begin(), publish_bundle.ret_outputs.end());
-                                    the_outputs_.insert( the_outputs_.end(), payment_bundle.ret_outputs.begin(), payment_bundle.ret_outputs.end());
-
-                                    pvector<const Input> the_inputs_=payment_bundle.inputs;
-                                    the_inputs_.insert( the_inputs_.end(), publish_bundle.inputs.begin(), publish_bundle.inputs.end());
-
-                                    auto essence=Essence::Transaction(info->network_id_,the_inputs_,Inputs_Commitment,the_outputs_);
-
-                                    payment_bundle.create_unlocks(essence->get_hash());
-                                    publish_bundle.create_unlocks(essence->get_hash(),payment_bundle.unlocks.size());
-
-                                    pvector<const Unlock> the_unlocks_=payment_bundle.unlocks;
-                                    the_unlocks_.insert( the_unlocks_.end(), publish_bundle.unlocks.begin(), publish_bundle.unlocks.end());
-
-
-                                    auto trpay=Payload::Transaction(essence,the_unlocks_);
-
-                                    auto resp=Node_Conection::instance()->mqtt()->get_subscription("transactions/"+trpay->get_id().toHexString() +"/included-block");
-                                    connect(resp,&ResponseMqtt::returned,this,[=](auto var){
-                                        set_state(Ready);
-                                        resp->deleteLater();
-                                    });
-                                    payments_.push_back(info->amount_json(payment_bundle.amount));
-                                    emit paymentsChange();
-                                    auto block_=Block(trpay);
-
-                                    Node_Conection::instance()->rest()->send_block(block_);
-
-                                    emit got_new_booking(varBooks);
-                                    clean_state();
-                                }
-                                else
-                                {
-                                    emit notEnought(info->amount_json(NftOut->amount_+Client::get_deposit(pubOut,info) - publish_bundle.amount-payment_bundle.amount));
-                                }
-
-                            }
-
-
                         }
                     }
-
-
                 }
 
-                publish_node_outputs_->deleteLater();
-                info->deleteLater();
-            });
-            Node_Conection::instance()->rest()->get_outputs<Output::Basic_typ>(publish_node_outputs_,
-                                                                               "address="+Account::instance()->addr_bech32({0,0,0},info->bech32Hrp));
-        });
-    }
-}
 
-
-void Book_Server::handle_init_funds()
-{
-
-    auto info=Node_Conection::instance()->rest()->get_api_core_v2_info();
-    QObject::connect(info,&Node_info::finished,this,[=]( ){
-
-        auto node_outputs_=new Node_outputs();
-        Node_Conection::instance()->rest()->get_outputs<Output::Basic_typ>(node_outputs_,"address="+Account::instance()->addr_bech32({0,0,0},info->bech32Hrp));
-
-        QObject::connect(node_outputs_,&Node_outputs::finished,reciever,[=]( ){
-
-            auto publish_bundle=Account::instance()->get_addr({0,0,0});
-
-            publish_bundle.consume_outputs(node_outputs_->outs_);
-            auto pubOut=get_publish_output(0);
-            const auto min_output_pub=Client::get_deposit(pubOut,info);
-
-            pubOut->amount_=publish_bundle.amount;
-            auto Addrpub=Account::instance()->get_addr({0,0,0}).get_address();
-
-            auto PubUnlcon=Unlock_Condition::Address(Addrpub);
-
-            if(publish_bundle.amount>=min_output_pub)
-            {
-                auto Inputs_Commitment=Block::get_inputs_Commitment(publish_bundle.Inputs_hash);
-
-                pvector<const Output> the_outputs_{pubOut};
-                the_outputs_.insert( the_outputs_.end(), publish_bundle.ret_outputs.begin(), publish_bundle.ret_outputs.end());
-
-                auto essence=Essence::Transaction(info->network_id_,publish_bundle.inputs,Inputs_Commitment,the_outputs_);
-
-                publish_bundle.create_unlocks(essence->get_hash());
-
-                auto trpay=Payload::Transaction(essence,publish_bundle.unlocks);
-
-                auto block_=Block(trpay);
-                auto resp=Node_Conection::instance()->mqtt()->get_subscription("transactions/"+trpay->get_id().toHexString() +"/included-block");
-                connect(resp,&ResponseMqtt::returned,this,[=](auto var){
-                    set_state(Ready);
-                    resp->deleteLater();
-                });
-                set_state(Publishing);
-                Node_Conection::instance()->rest()->send_block(block_);
-                started=true;
             }
+
 
             info->deleteLater();
-            node_outputs_->deleteLater();
         });
-    });
 
 
+    }
 }
 
-
-void Book_Server::try_to_open(void)
+void BookServer::handleInitFunds(QString payAddress)
 {
-    static ResponseMqtt* resp=nullptr;
-    if(resp)resp->deleteLater();
-    auto info=Node_Conection::instance()->rest()->get_api_core_v2_info();
-    connect(info,&Node_info::finished,this,[=]( ){
 
-        quint32 r1 = QRandomGenerator::global()->generate();
-        quint32 r2 = QRandomGenerator::global()->generate();
+    auto info=NodeConnection::instance()->rest()->get_api_core_v2_info();
+    QObject::connect(info,&Node_info::finished,this,[=]( ){
 
+        qDebug()<<"BookServer::handleInitFunds";
+        auto pubOut=getPublishOutput();
+        const auto minOutputPub=Client::get_deposit(pubOut,info);
 
-        const auto address=Account::instance()->addr_bech32({100,r1,r2},info->bech32Hrp);
+        InputSet inputSet;
+        StateOutputs stateOutputs;
+        quint64 consumedAmount=0;
+        quint64 stateAmount=0;
+        consumedAmount+=Wallet::instance()->
+                          consume(inputSet,stateOutputs,0,{Output::Basic_typ});
+        pubOut->amount_=consumedAmount;
 
-        resp=Node_Conection::instance()->mqtt()->
-               get_outputs_unlock_condition_address("address/"+address);
-        QObject::connect(resp,&ResponseMqtt::returned,reciever,[=](QJsonValue data){
-            check_nft_to_open(Node_output(data));
-            resp->deleteLater();
-            resp=nullptr;
-        });
-        emit nftAddress(address);
+        auto Addrpub=Wallet::instance()->addresses().begin()->second->getAddress();
+
+        auto PubUnlcon=Unlock_Condition::Address(Addrpub);
+        if(consumedAmount>=minOutputPub)
+        {
+
+            pvector<const Output> theOutputs{pubOut};
+            auto payloadusedids=Wallet::instance()->createTransaction(inputSet,info,theOutputs);
+            auto block=Block(payloadusedids.first);
+            qDebug()<<block.get_Json();
+            auto transactionid=payloadusedids.first->get_id();
+            qDebug()<<"transactionid:"<<transactionid.toHexString();
+            auto resp=NodeConnection::instance()->mqtt()->get_subscription("transactions/"+transactionid.toHexString() +"/included-block");
+            connect(resp,&ResponseMqtt::returned,this,[=](auto var){
+                setState(Ready);
+                resp->deleteLater();
+            });
+            setState(Publishing);
+            transactionid.append(quint16(0));
+            m_pubId=transactionid;
+            NodeConnection::instance()->rest()->send_block(block);
+            disconnect(Wallet::instance(),&Wallet::amountChanged,this,nullptr);
+            monitorPayments(payAddress);
+        }
+
         info->deleteLater();
+
     });
+
 }
-QByteArray Book_Server::serialize_state(void)const
+
+QByteArray BookServer::serializeState()const
 {
     QJsonObject var;
     QJsonArray bookings;
 
-    for(const auto& v: books_)
+    for(const auto& v: m_books)
     {
-        bookings.append(v["start"]);
-        bookings.append(v["finish"]);
+        bookings.append(v.start().toSecsSinceEpoch());
+        bookings.append(v.end().toSecsSinceEpoch());
     }
-    var.insert("bookings",bookings);
-    var.insert("price_per_hour",QString::number(price_per_hour_));
-    var.insert("pay_to",Account::instance()->addr({0,0,1}));
-#if defined(RPI_SERVER)
-    if(m_GeoCoord.isValid())var.insert("coord",QJsonArray({m_GeoCoord.longitude(),m_GeoCoord.latitude()}));
-#endif
+    var.insert("b",bookings);
+    var.insert("pph",QString::number(m_pph));
+    var.insert("pt",(++Wallet::instance()->addresses().begin())->second->getAddressHash());
+    if(m_GeoCoord.isValid())var.insert("c",QJsonArray({m_GeoCoord.latitude(),m_GeoCoord.longitude()}));
     auto state = QJsonDocument(var);
     return state.toJson();
-}
-void Book_Server::deserialize_state(const QByteArray &state)
-{
-    const auto var=QJsonDocument::fromJson(state).object();
-    if(!var["bookings"].isUndefined()&&var["bookings"].isArray())
-    {
-        const auto bookarray=var["bookings"].toArray();
-        const auto vec=Booking::from_Array(bookarray);
-        for(const auto& v:vec)
-        {
-            books_.insert(v);
-
-        }
-        emit got_new_booking(bookarray);
-        started=true;
-    }
-
 }

@@ -55,7 +55,7 @@ if(Qt6_FOUND)
 		)
 	install(TARGETS Bookingsplugin
 		EXPORT ${PROJECT_NAME}-config
-		DESTINATION ${CMAKE_INSTALL_LIBDIR}/Esterv/Esterv/Dlockers
+                DESTINATION ${CMAKE_INSTALL_LIBDIR}/Esterv/Dlockers
 		COMPONENT Bookings
 		)
 

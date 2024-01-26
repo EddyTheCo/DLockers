@@ -77,29 +77,24 @@ void DayModel::popFront(void) {
         endRemoveRows();
     }
 }
-void DayModel::removeSentBooking(const QString& outid)
+void DayModel::removeSentBooking(const std::vector<Booking>& bookings)
 {
-    auto it=m_sentBookings.find(outid);
-    if(it!=m_sentBookings.end())
+
+    for(const auto & nbook:bookings)
     {
-        auto vec=Booking::fromArray(it.value());
-        for(const auto & nbook:vec)
+        auto days=nbook.getDays();
+        auto listStartDay=m_days.front()->day();
+        for(auto d:days)
         {
-            auto days=nbook.getDays();
-            auto listStartDay=m_days.front()->day();
-            for(auto d:days)
-            {
-                auto ind=listStartDay.daysTo(d);
-                auto booked_hours=nbook.getHours(d);
-                m_days.at(ind)->hourModel()->rmSentBookedHours(booked_hours);
-            }
+            auto ind=listStartDay.daysTo(d);
+            auto booked_hours=nbook.getHours(d);
+            m_days.at(ind)->hourModel()->rmSentBookedHours(booked_hours);
         }
-        m_sentBookings.remove(outid);
     }
 
 }
 
-void DayModel::addBooking(const QJsonArray& books,QString id)
+void DayModel::addBooking(const HourBox::State state, const QJsonArray& books)
 {
     auto vec=Booking::fromArray(books);
 
@@ -114,8 +109,7 @@ void DayModel::addBooking(const QJsonArray& books,QString id)
             if(ind>=0)
             {
                 auto booked_hours=nbook.getHours(d);
-                m_days.at(ind)->hourModel()->addBookedHours(id,booked_hours);
-                if(!id.isEmpty())m_sentBookings.insert(id,books);
+                m_days.at(ind)->hourModel()->addBookedHours(state,booked_hours);
             }
         }
     }

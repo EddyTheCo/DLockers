@@ -10,38 +10,34 @@ class BOOKI_EXPORT HourBox : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(quint8 hour READ hour CONSTANT)
-    Q_PROPERTY(bool booked MEMBER m_booked NOTIFY bookedChanged)
-    Q_PROPERTY(bool selected MEMBER m_selected NOTIFY selectedChanged)
-    Q_PROPERTY(bool sentbook MEMBER m_sentbook NOTIFY sentbookChanged)
-    Q_PROPERTY(QString outId READ outId WRITE setOutId NOTIFY outIdChanged)
+    Q_PROPERTY(State state MEMBER m_state NOTIFY stateChanged)
+    QML_UNCREATABLE("")
     QML_ELEMENT
 
 
 public:
-    HourBox(quint8 hour,bool booked,bool selected,QObject *parent):QObject(parent),m_hour(hour),
-        m_booked(booked),m_selected(selected),m_sentbook(false)
+    HourBox(quint8 hour,QObject *parent):QObject(parent),m_hour(hour),
+        m_state(Free)
     {};
+    enum State {
+        Free = 0,
+        Occupied,
+        Selected,
+        Booking,
+        Booked
+    };
+    Q_ENUM(State)
     quint8 hour() const{return m_hour;}
-    bool booked() const{return m_booked;}
-    bool selected() const{return m_selected;}
-    bool sentbook() const{return m_sentbook;}
-    QString outId()const{return m_outId;}
-    void setOutId(QString outId){if(outId!=m_outId){m_outId=outId;emit outIdChanged();}}
-	
-    void set_booked(bool booked){if(booked!=m_booked){m_booked=booked;emit bookedChanged();}};
-    void set_selected(bool selected){if(selected!=m_selected){m_selected=selected;emit selectedChanged();}};
-    void set_sentbook(bool sentbook){if(sentbook!=m_sentbook){m_sentbook=sentbook;emit sentbookChanged();}};
+    State state() const{return m_state;}
+
 
 signals:
-    void bookedChanged(void);
-    void selectedChanged(void);
-    void sentbookChanged(void);
+    void stateChanged(void);
     void outIdChanged(void);
 
 private:
     quint8 m_hour;
-    bool m_booked,m_selected,m_sentbook;
-    QString m_outId;
+    State m_state;
 
 };
 
@@ -49,18 +45,19 @@ class BOOKI_EXPORT HourModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    QML_UNCREATABLE("")
     QML_ELEMENT
 
 public:
     enum ModelRoles {
         hourRole = Qt::UserRole + 1,
-        bookedRole,selectedRole,sentbookRole,outIdRole
+        stateRole
     };
     int count() const;
     explicit HourModel(int hstart,QObject *parent = nullptr);
     Q_INVOKABLE bool setProperty(int i, QString role, const QVariant value);
 
-    void addBookedHours(const QString id, const std::vector<int>& booked_hours);
+    void addBookedHours(const HourBox::State state, const std::vector<int>& booked_hours);
     void rmSentBookedHours(const std::vector<int>& booked_hours);
     void getBookingsFromSelected(QDate day,QJsonArray& var);
 

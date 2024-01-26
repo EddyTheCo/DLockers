@@ -22,7 +22,10 @@ class BOOKI_EXPORT Booking
         std::vector<QDate> getDays(void)const;
         std::vector<int> getHours(const QDate& day)const;
         bool checkValidity(const QDateTime & ref)const;
-
+        bool isValid()const;
+        bool contains(const QDateTime & ref)const;
+        QDateTime start()const{return m_start;}
+        QDateTime end()const{return m_end;}
 		friend bool operator < (const Booking& b1, const Booking& b2)
 		{
             return(b1.m_start<b2.m_start&&b1.m_end<b2.m_end);

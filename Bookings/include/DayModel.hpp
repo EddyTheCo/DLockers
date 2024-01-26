@@ -13,6 +13,7 @@ class BOOKI_EXPORT DayBox : public QObject
     Q_OBJECT
     Q_PROPERTY(QDate day READ day CONSTANT)
     Q_PROPERTY(HourModel* hourModel  READ hourModel CONSTANT)
+    QML_UNCREATABLE("")
     QML_ELEMENT
 
 public:
@@ -36,6 +37,7 @@ class BOOKI_EXPORT DayModel : public QAbstractListModel
     Q_OBJECT    
     Q_PROPERTY(int count READ count CONSTANT)
     Q_PROPERTY(int totalSelected  READ totalSelected  NOTIFY totalSelectedChanged)
+    QML_UNCREATABLE("")
     QML_ELEMENT
 
 public:
@@ -47,9 +49,9 @@ public:
     };
 
     QJsonArray getNewBookings(void);
-    void addBooking(const QJsonArray &books, QString id="" );
+    void addBooking(const HourBox::State state, const QJsonArray &books);
 
-    void removeSentBooking(const QString &outid);
+    void removeSentBooking(const std::vector<Booking> &bookings);
 
     void addToTotalSelected(int sel){m_totalSelected+=sel; emit totalSelectedChanged(m_totalSelected);}
 
@@ -76,6 +78,5 @@ private:
     QList<DayBox*> m_days;
     QTimer *m_timer;
     int m_totalSelected;
-    QHash <QString,QJsonArray> m_sentBookings;
 };
 

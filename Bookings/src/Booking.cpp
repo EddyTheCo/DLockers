@@ -10,8 +10,15 @@ Booking::Booking(const qint64 &start,const qint64 &end):
 }
 bool Booking::checkValidity(const QDateTime & ref)const
 {
-    if(ref<m_end)return true;
-    return false;
+    return ref<m_end;
+}
+bool Booking::isValid()const
+{
+    return m_end>m_start;
+}
+bool Booking::contains(const QDateTime & ref)const
+{
+    return m_start<=ref&&m_end>ref;
 }
 std::vector<QDate> Booking::getDays(void)const
 {
@@ -33,9 +40,9 @@ std::vector<int> Booking::getHours(const QDate& day)const
     std::vector<int> booked_hours;
 
     auto st=(day==m_start.date())?
-                m_start.time():QTime(0,0);
+                  m_start.time():QTime(0,0);
     auto fi=(day==m_end.date())?
-                m_end.time():QTime(23,59,59,59);
+                  m_end.time():QTime(23,59,59,59);
     auto interval=(st.secsTo(fi)+1)/60/60;
     for(auto i =0;i<interval;i++)
     {
@@ -47,14 +54,15 @@ std::vector<int> Booking::getHours(const QDate& day)const
 quint64 Booking::price(quint64 per_hour)const
 {
     const auto hours=(m_end-m_start);
-    return per_hour*hours.count()/60/60/1000;
+
+    return per_hour*(hours.count()+1000)/60/60/1000;
 }
 std::vector<Booking> Booking::fromArray(const QJsonArray &books)
 {
     std::vector<Booking> var;
     for(auto i=0;i<books.size();i++)
     {
-        if(i%2)
+        if(i%2&&books.at(i-1).toInteger()>0&&books.at(i).toInteger()>0)
         {
             auto b=Booking(books.at(i-1).toInteger(),books.at(i).toInteger());
             var.push_back(b);

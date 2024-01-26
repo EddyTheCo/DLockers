@@ -10,34 +10,34 @@ RowLayout
     id:control
 
     required property bool canBook
-    required property bool booked
-    required property bool selected
-    required property bool sentbook
     required property int hour
+    required property int state
     required property int index
 
     spacing:4
     Text {
-        id:time_
-        text: new Date('December 17, 1995 '+root_box.hour+':00:00').toLocaleTimeString(Qt.locale(),"h a");
-        color: Style.frontcolor1
+        id:time
+        text: (control.hour<12)?(((control.hour)?control.hour:12)+" " + Qt.locale().amText):((control.hour===12)?12:control.hour-12)+" "+ Qt.locale().pmText;
+        color: Style.frontColor1
+        Layout.preferredWidth: 80
         Layout.minimumWidth: 50
         Layout.fillHeight: true
-        Layout.fillWidth: true
+        Layout.maximumWidth: 200
+        Layout.alignment: Qt.AlignTop
         horizontalAlignment: Text.AlignRight
-        verticalAlignment: Text.AlignTop
-        font.pointSize:250
-        fontSizeMode:Text.Fit
+
     }
     Rectangle
     {
-        id:line_
-        Layout.preferredWidth: 25
-        Layout.minimumWidth: 5
-        Layout.preferredHeight:  3
+        id:line
+        Layout.preferredWidth: 20
+        Layout.preferredHeight:  2
+        Layout.maximumWidth: 40
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignTop
-        color:Style.frontcolor2
+        color:Style.frontColor2
+        border.color:Style.frontColor2
+        border.width: 1
     }
 
     Rectangle
@@ -45,38 +45,55 @@ RowLayout
         Layout.preferredWidth: 150
         Layout.fillHeight: true
         Layout.fillWidth: true
-        Layout.maximumWidth: 400
-        border.color:Style.frontcolor2
+        Layout.alignment: Qt.AlignHCenter
+        border.color:Style.frontColor2
         border.width: 1
-        color: control.booked?'#e7001b':((root_box.selected?'#0f79af':'transparent'))
+        color: control.state===HourBox.Occupied?'#e7001b':((control.state===HourBox.Selected?Style.backColor3:'transparent'))
         opacity:0.7
-        Rectangle
-        {
-            id: sent_
-            color:'#BCAF4D'
-            width:0.3*parent.width
-            height: parent.height
-            opacity:0.5
-            visible: control.sentbook
-        }
 
         Text
         {
+            anchors.fill: parent
+            text: (control.state===HourBox.Selected?"-":"+")
+            fontSizeMode:Text.Fit
+            visible:(control.canBook&&(control.state===HourBox.Selected||control.state===HourBox.Free))
+            color:Style.frontColor1
+            verticalAlignment:Text.AlignVCenter
+            horizontalAlignment:Text.AlignHCenter
+            font:Style.h1
+        }
+        BusyIndicator {
             anchors.centerIn: parent
-            text:(control.selected)?'-':'+'
-            font.pointSize:20
-            visible:((!control.booked)&&control.can_book)
-            color:Style.frontcolor1
+            running: control.state===HourBox.Booking
+        }
+        Rectangle
+        {
+            anchors.verticalCenter: parent.verticalCenter
+            width:parent.width*0.4
+            height:parent.height*0.8
+            radius:5
+            color: Style.backColor3
+            border.color: Style.frontColor1
+            border.width: 1
+            visible: control.state===HourBox.Booked
+            Text
+            {
+                anchors.fill: parent
+                anchors.margins: 3
+                verticalAlignment:Text.AlignVCenter
+                horizontalAlignment:Text.AlignHCenter
+                fontSizeMode:Text.Fit
+                color:Style.frontColor1
+                text: qsTr("Booked")
+                font:Style.h2
+            }
         }
 
         MouseArea {
             anchors.fill: parent
-            enabled:control.can_book
+            enabled:control.canBook&&(control.state===HourBox.Free||control.state===HourBox.Selected)
             onClicked: {
-                if(!control.booked&&!control.sentbook)
-                {
-                    control.ListView.view.model.setProperty(control.index,"selected",!control.selected)
-                }
+                    control.ListView.view.model.setProperty(control.index,"state",(control.state===HourBox.Free)?HourBox.Selected:HourBox.Free)
             }
         }
     }

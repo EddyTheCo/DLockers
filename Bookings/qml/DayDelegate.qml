@@ -14,7 +14,7 @@ Item
     Rectangle
     {
 
-        id:head_label
+        id:headlabel
 
         color: Style.backColor2
         width:parent.width
@@ -26,7 +26,7 @@ Item
             height:parent.height*0.65
             text: control.day.toLocaleString(Qt.locale(),"ddd")
             anchors.bottomMargin: parent.height*0.03
-            color: Style.frontcolor1
+            color: Style.frontColor1
             font.pointSize:250
             fontSizeMode:Text.Fit
             horizontalAlignment: Text.AlignHCenter
@@ -37,9 +37,9 @@ Item
             height:parent.height*0.3
             anchors.bottom: parent.bottom
             anchors.bottomMargin: parent.height*0.02
-            text: dia_delegate.day.toLocaleString(Qt.locale(),"dd/MM/yy")
+            text: control.day.toLocaleString(Qt.locale(),"dd/MM/yy")
             font.pointSize:250
-            color: Style.frontcolor1
+            color: Style.frontColor1
             fontSizeMode:Text.Fit
             horizontalAlignment: Text.AlignHCenter
         }
@@ -48,7 +48,7 @@ Item
     HourListView
     {
         id:hourlistview
-
+        anchors.top: headlabel.bottom
         width:parent.width
         height:parent.height*0.8
         canBook:control.canBook

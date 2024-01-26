@@ -1,6 +1,7 @@
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick
+import Esterv.Styles.Simple
 Popup {
     id: control
     signal selected()
@@ -23,6 +24,7 @@ Popup {
         {
             text: control.score+"/5.0"
             Layout.fillWidth: true
+            color:Style.frontColor1
         }
         Label
         {
@@ -33,11 +35,12 @@ Popup {
         {
             text: control.occupied+"%"
             Layout.fillWidth: true
+            color:Style.frontColor1
         }
         Button
         {
             Layout.fillWidth: true
-            text: qsTr("Book")
+            text: qsTr("Details")
             onClicked:
             {
                 control.selected();

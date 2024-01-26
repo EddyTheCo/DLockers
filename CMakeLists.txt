@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(USE_QML ON)
-option(BUILD_CLIENT "Build the Client application" OFF)
-option(BUILD_SERVER "Build the Server application" OFF)
+option(BUILD_CLIENT "Build the Client application" ON)
+option(BUILD_SERVER "Build the Server application" ON)
 
 include(${CMAKE_CURRENT_BINARY_DIR}/local_conf.cmake OPTIONAL)
 

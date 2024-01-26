@@ -8,7 +8,7 @@
 #include "block/carray.hpp"
 #include "block/qoutputs.hpp"
 #include "qaddr_bundle.hpp"
-#include "Day_model.hpp"
+#include "DayModel.hpp"
 #include <QHash>
 
 using namespace qiota::qblocks;
@@ -25,7 +25,8 @@ class Server : public QObject
     Q_PROPERTY(float latitude READ latitude NOTIFY latitudeChanged)
     Q_PROPERTY(float longitude READ longitude NOTIFY longitudeChanged)
     Q_PROPERTY(Qml64*  pph READ pph CONSTANT)
-    Q_PROPERTY(Day_model* dayModel  READ dayModel CONSTANT)
+    Q_PROPERTY(DayModel* dayModel  READ dayModel CONSTANT)
+    QML_UNCREATABLE("")
     QML_ELEMENT
 
 public:
@@ -54,10 +55,10 @@ public:
     float latitude()const{return m_latitude;}
     float longitude()const{return m_longitude;}
     Qml64* pph()const{return m_pph;}
-    Day_model* dayModel(void)const{return m_daymodel;}
+    DayModel* dayModel(void)const{return m_dayModel;}
 
-    void sendBookings();
-    void presentNft(const QString address);
+    Q_INVOKABLE void sendBookings();
+    Q_INVOKABLE void presentNft(const QString address);
 
 signals:
     void scoreChanged();
@@ -76,13 +77,14 @@ private:
     c_array m_payAddress,m_outId;
     QString m_account;
     Qml64* m_pph;
-    Day_model* m_daymodel;
+    DayModel* m_dayModel;
 };
 
-class Book_Client : public QAbstractListModel
+class BookClient : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(Server* selected READ getSelected NOTIFY selectedChanged)
     QML_ELEMENT
     QML_SINGLETON
 
@@ -96,6 +98,9 @@ public:
     }
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
     Q_INVOKABLE bool setProperty(int i, QString role, const QVariant value);
+    Server * getSelected()const{ return m_selected;};
+    Q_INVOKABLE void setSelected(int ind);
+
     QHash<int, QByteArray> roleNames() const;
     int rowCount(const QModelIndex &p) const{
         Q_UNUSED(p)
@@ -103,20 +108,23 @@ public:
     }
     QVariant data(const QModelIndex &index, int role) const;
 
-    Book_Client(QObject *parent = nullptr);
+    BookClient(QObject *parent = nullptr);
 
 
 signals:
     void countChanged(int);
+    void selectedChanged();
 
 private:
     void resetData();
+    void getBookings();
+    void checkNFTforBook(std::shared_ptr<const qblocks::Output> output);
     void rmServer(c_array outId);
     int idToIndex(c_array outId);
     void deserializeState(const QString account, const c_array outId, const QByteArray state);
     void getServerList(void);
     void addServer(QString account);
     void getServer(std::shared_ptr<const Output>, c_array outId, QString hrp);
-
+    Server* m_selected;
     QList<Server*> m_servers;
 };

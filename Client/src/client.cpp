@@ -1,4 +1,4 @@
-#include"bclient.hpp"
+#include"client.hpp"
 #include <QCryptographicHash>
 #include <QDebug>
 #include<QJsonDocument>
@@ -6,7 +6,7 @@
 #include"nodeConnection.hpp"
 #include "encoding/qbech32.hpp"
 #include "qwallet.hpp"
-
+#include "account.hpp"
 using namespace qiota::qblocks;
 
 using namespace qiota;
@@ -14,49 +14,113 @@ using namespace qiota;
 Server::Server(QString account,c_array outId, const quint64 pph, const c_array payAddress, const QJsonArray bookings,
                const float latitude, const float longitude, const float score, const quint8 occupied, QObject *parent )
     :QObject(parent),m_account(account),m_outId(outId),m_pph(new Qml64(pph,this)),m_payAddress(payAddress),
-    m_daymodel(new Day_model(this)),m_latitude(latitude),m_longitude(longitude),m_score(score),m_occupied(occupied)
+    m_dayModel(new DayModel(this)),m_latitude(latitude),m_longitude(longitude),m_score(score),m_occupied(occupied)
 {
-    m_daymodel->add_booking(bookings);
+    m_dayModel->addBooking(HourBox::Occupied,bookings);
+
 }
-Book_Client::Book_Client(QObject *parent):QAbstractListModel(parent)
+BookClient::BookClient(QObject *parent):QAbstractListModel(parent),m_selected(nullptr)
 {
-    connect(Wallet::instance(),&Wallet::resetted,this,[=](){
+    Account::instance()->setSeed("maximum veteran table spice young rotate weapon grab couch oxygen fire evil ghost drink bridge speed cupboard mask draw student early leopard follow stadium");
+    connect(Wallet::instance(),&Wallet::synced,this,[=](){
         resetData();
-        getServerList();});
+        getServerList();
+
+    });
+
 }
-void Book_Client::getServerList(void)
+void BookClient::getBookings()
+{
+    qDebug()<<"BookClient::getBookings";
+    const auto nfts=Wallet::instance()->getNFTs();
+    qDebug()<<"nfts.size:"<<nfts.size();
+    for(const auto& v: nfts)
+    {
+        checkNFTforBook(v.second);
+    }
+    connect(Wallet::instance(),&Wallet::inputAdded,this,[=](c_array id){
+        checkNFTforBook(Wallet::instance()->getInput(id).output);
+    });
+}
+void BookClient::checkNFTforBook(std::shared_ptr<const qblocks::Output> output)
+{
+    qDebug()<<"BookClient::checkNFTforBook";
+    if(output->type()==Output::NFT_typ)
+    {
+        const auto issuerfeature=output->get_immutable_feature_(Feature::Issuer_typ);
+        if(issuerfeature)
+        {
+            const auto issuer=std::static_pointer_cast<const Issuer_Feature>(issuerfeature)->issuer()->addr();
+            const auto metfeature=output->get_immutable_feature_(Feature::Metadata_typ);
+            if(metfeature)
+            {
+                const auto metadata=std::static_pointer_cast<const Metadata_Feature>(metfeature)->data();
+                auto books=Booking::metadataToBookings(metadata);
+                if(!books.isEmpty())
+                {
+                    for(auto& v:m_servers)
+                    {
+                        const auto addr_pair=qencoding::qbech32::Iota::decode(v->account());
+                        if(addr_pair.second==issuer)
+                        {
+                            v->dayModel()->addBooking(HourBox::Booked,books);
+                        }
+                    }
+                }
+
+
+            }
+        }
+    }
+}
+void BookClient::setSelected(int ind)
+{
+    if(ind<m_servers.size())
+    {
+        m_selected=m_servers.at(ind);
+        emit selectedChanged();
+    }
+
+}
+void BookClient::getServerList(void)
 {
     //*****Testing***************//
-    auto nserver=new Server("rms1ddr","sdsdsdsds",1000,"payAddress",{},41.902916,12.453389,3.0,50,this);
+    /*auto nserver=new Server("rms1qqzpht5ur3m43ynz88rqeny83zzjueq77phgm97geyqwcmmju6keyq37s7s",
+                              c_array::fromHexString("0x4623856d6b79407a52052a65729f907588d30f7e0ad2a28b4efd66e2945435440000"),
+                              1000,
+                              c_array::fromHexString("0x007111d514f02adb5155cdf460afd3c39e565bd3fd1c22d3bd4201a373ad76130d"),
+                              {},41.902916,12.453389,3.0,50,this);
     int i = m_servers.size();
     beginInsertRows(QModelIndex(), i, i);
     m_servers.append(nserver);
     emit countChanged(count());
     endInsertRows();
+*/
     //*****Testing***************//
 
     auto info=NodeConnection::instance()->rest()->get_api_core_v2_info();
     connect(info,&Node_info::finished,this,[=]( ){
         auto nodeOutputs=NodeConnection::instance()->rest()->get_outputs<Output::Basic_typ>
-                           ("tag="+fl_array<quint8>("stateDLockers").toHexString());
+                           ("tag="+fl_array<quint8>("DLockers").toHexString());
         const auto hrp=info->bech32Hrp;
         connect(nodeOutputs,&Node_outputs::finished,this,[=]( ){
             for(const auto & v:nodeOutputs->outs_)
             {
-                const auto output_=v.output();
-                getServer(output_,v.metadata().outputid_,hrp);
+                const auto output=v.output();
+                getServer(output,v.metadata().outputid_,hrp);
             }
+            getBookings();
             nodeOutputs->deleteLater();
         });
         info->deleteLater();
     });
 }
-void Book_Client::addServer(QString account)
+void BookClient::addServer(QString account)
 {
     auto info=NodeConnection::instance()->rest()->get_api_core_v2_info();
     connect(info,&Node_info::finished,this,[=]( ){
         auto nodeOutputs=NodeConnection::instance()->rest()->get_outputs<Output::Basic_typ>
-                           ("address="+account+"&sender="+account+"&hasStorageDepositReturn=false&hasTimelock=false&hasExpiration=false&tag="+fl_array<quint8>("stateDLockers").toHexString());
+                           ("address="+account+"&sender="+account+"&hasStorageDepositReturn=false&hasTimelock=false&hasExpiration=false&tag="+fl_array<quint8>("DLockers").toHexString());
         const auto hrp=info->bech32Hrp;
         connect(nodeOutputs,&Node_outputs::finished,this,[=]( ){
             for(const auto & v:nodeOutputs->outs_)
@@ -69,7 +133,7 @@ void Book_Client::addServer(QString account)
         info->deleteLater();
     });
 }
-void Book_Client::getServer(std::shared_ptr<const Output> output,c_array outId, QString hrp)
+void BookClient::getServer(std::shared_ptr<const Output> output,c_array outId, QString hrp)
 {
     if(output->type()==qblocks::Output::Basic_typ)
     {
@@ -79,7 +143,7 @@ void Book_Client::getServer(std::shared_ptr<const Output> output,c_array outId, 
         const auto metfeau=output->get_feature_(Feature::Metadata_typ);
         if(sendfea&&tagfeau&&
             std::static_pointer_cast<const Sender_Feature>(sendfea)->sender()->addr()==addrunlock&&
-            std::static_pointer_cast<const Tag_Feature>(tagfeau)->tag()==fl_array<quint8>("stateDLockers")&&metfeau)
+            std::static_pointer_cast<const Tag_Feature>(tagfeau)->tag()==fl_array<quint8>("DLockers")&&metfeau)
         {
             const auto account=qencoding::qbech32::Iota::encode(
                 hrp,std::static_pointer_cast<const Sender_Feature>(sendfea)->sender()->addr());
@@ -90,7 +154,7 @@ void Book_Client::getServer(std::shared_ptr<const Output> output,c_array outId, 
     }
 }
 
-void Book_Client::deserializeState(const QString account,const c_array outId,const QByteArray state)
+void BookClient::deserializeState(const QString account,const c_array outId,const QByteArray state)
 {
     const auto var=QJsonDocument::fromJson(state).object();
     if(var["pph"].isUndefined())return;
@@ -99,9 +163,10 @@ void Book_Client::deserializeState(const QString account,const c_array outId,con
     const auto payAddress=c_array::fromHexString(var["pt"].toString());
     if(var["c"].isUndefined()||!var["c"].isArray())return;
     const auto coords=var["c"].toArray();
+
     if(coords.size()<2||!coords.at(0).isDouble()||!coords.at(1).isDouble())return;
     const float latitude=coords.at(0).toDouble();
-    const float longitude=coords.at(0).toDouble();
+    const float longitude=coords.at(1).toDouble();
 
     const auto score=5.0;
     const auto occupied=0;
@@ -118,7 +183,7 @@ void Book_Client::deserializeState(const QString account,const c_array outId,con
                 v->setPph(pricePerHour);
                 v->setPayAddress(payAddress);
                 v->setScore(score);
-                v->dayModel()->add_booking(bookarray);
+                v->dayModel()->addBooking(HourBox::Occupied,bookarray);
                 v->setOccupied(occupied);
                 v->setLatitude(latitude);
                 v->setLongitude(longitude);
@@ -154,15 +219,7 @@ void Book_Client::deserializeState(const QString account,const c_array outId,con
             const auto nodeOutput=Node_output(data);
             getServer(nodeOutput.output(),nodeOutput.metadata().outputid_,qencoding::qbech32::Iota::decode(account).first);
         });
-        auto resp2=NodeConnection::instance()->mqtt()->get_outputs_outputId(outId.toHexString());
-        QObject::connect(resp2,&ResponseMqtt::returned,nserver,[=](QJsonValue data){
-            const auto node_output=Node_output(data);
-            if(node_output.metadata().is_spent_)
-            {
-                rmServer(outId);
-                resp2->deleteLater();
-            }
-        });
+
         int i = m_servers.size();
         beginInsertRows(QModelIndex(), i, i);
         m_servers.append(nserver);
@@ -172,20 +229,18 @@ void Book_Client::deserializeState(const QString account,const c_array outId,con
     }
 
 }
-void Book_Client::resetData(void)
+void BookClient::resetData(void)
 {
     for(auto ind=0;ind<count();ind++)
     {
-
         m_servers[ind]->deleteLater();
         m_servers.remove(ind);
-
     }
     beginRemoveRows(QModelIndex(),0,count());
     emit countChanged(count());
     endRemoveRows();
 }
-void Book_Client::rmServer(c_array outId)
+void BookClient::rmServer(c_array outId)
 {
     const auto ind=idToIndex(outId);
     if(ind>-1)
@@ -199,7 +254,7 @@ void Book_Client::rmServer(c_array outId)
 
 }
 
-int Book_Client::idToIndex(c_array outId)
+int BookClient::idToIndex(c_array outId)
 {
     for(auto i=0;i<m_servers.size();i++)
     {
@@ -214,21 +269,25 @@ void Server::sendBookings()
 {
     auto info=NodeConnection::instance()->rest()->get_api_core_v2_info();
     QObject::connect(info,&Node_info::finished,this,[=]( ){
-        const auto books=m_daymodel->getNewBookings();
-        auto metadata=Booking::create_new_bookings_metadata(books);
-        auto metFea=Feature::Metadata(metadata);
+        const auto books=m_dayModel->getNewBookings();
+
+        auto metFea=Booking::bookingsToMetadata(books);
+
         const auto retAddr=Wallet::instance()->addresses().begin()->second->getAddress();
         auto sendFea=Feature::Sender(retAddr);
-        auto until_when=QDateTime::currentDateTime().addSecs(60).toSecsSinceEpoch();
 
-        auto expirationUnlock=Unlock_Condition::Expiration(until_when,retAddr);
+        auto untilWhen=QDateTime::currentDateTime().addSecs(60).toSecsSinceEpoch();
 
-        auto payToAddress=Address::from_array(m_payAddress);
+        auto expirationUnlock=Unlock_Condition::Expiration(untilWhen,retAddr);
+
+        auto payToAddress=Address::Ed25519(m_payAddress);
+
 
         auto addrUnlcon=Unlock_Condition::Address(payToAddress);
+
         auto mineUnlock=Unlock_Condition::Address(retAddr);
 
-        auto price=Booking::calculate_price(books,m_pph->getValue());
+        auto price=Booking::price(books,m_pph->getValue());
 
         auto mindeposit=Client::get_deposit(Output::Basic(0,{addrUnlcon}),info);
 
@@ -237,6 +296,10 @@ void Server::sendBookings()
         auto BaOut=Output::Basic(0,{addrUnlcon,storUnlo,expirationUnlock},{},{sendFea,metFea});
         auto storagedeposit=Client::get_deposit(BaOut,info);
         auto requiredAmount=mindeposit+price;
+
+        qDebug()<<"price:"<<price;
+        qDebug()<<"mindeposit:"<<mindeposit;
+        qDebug()<<"storagedeposit:"<<storagedeposit;
         BaOut->amount_=requiredAmount;
         if(requiredAmount<storagedeposit)
         {
@@ -263,7 +326,8 @@ void Server::sendBookings()
             stateAmount+=cdep;
             theOutputs.push_back(out);
         }
-
+        qDebug()<<"consumedAmount:"<<consumedAmount;
+        qDebug()<<"stateAmount:"<<stateAmount;
         if(consumedAmount>=stateAmount+requiredAmount+mindeposit)
         {
             auto BaOut2=Output::Basic(consumedAmount-stateAmount-requiredAmount,{mineUnlock});
@@ -271,11 +335,11 @@ void Server::sendBookings()
 
             auto payloadusedids=Wallet::instance()->createTransaction(inputSet,info,theOutputs);
             auto block=Block(payloadusedids.first);
-
+            m_dayModel->addBooking(HourBox::Booking,books);
             auto transactionid=payloadusedids.first->get_id();
             NodeConnection::instance()->rest()->send_block(block);
 
-            m_daymodel->add_booking(books,transactionid.toHexString());
+
         }
         info->deleteLater();
 
@@ -306,14 +370,14 @@ void Server::presentNft(const QString address)
 
                     const auto var=QJsonDocument::fromJson(metadata).object();
 
-                    if(!var["bookings"].isUndefined()&&var["bookings"].isArray())
+                    if(!var["b"].isUndefined()&&var["b"].isArray())
                     {
-                        const auto bookarray=var["bookings"].toArray();
-                        const auto vec=Booking::from_Array(bookarray);
+                        const auto bookarray=var["b"].toArray();
+                        const auto vec=Booking::fromArray(bookarray);
 
                         for(const auto& f:vec)
                         {
-                            if(f["start"].toInteger()<=now.toSecsSinceEpoch()&&f["finish"].toInteger()>now.toSecsSinceEpoch())
+                            if(f.contains(now))
                             {
                                 sendNFT(v.first,presentAddrArray.second);
                                 return;
@@ -394,11 +458,11 @@ void Server::sendNFT(c_array id,c_array addressArray)const
     });
 }
 
-QVariant Book_Client::data(const QModelIndex &index, int role) const
+QVariant BookClient::data(const QModelIndex &index, int role) const
 {
     return m_servers[index.row()]->property(roleNames().value(role));
 }
-bool Book_Client::setData(const QModelIndex &index, const QVariant &value, int role )
+bool BookClient::setData(const QModelIndex &index, const QVariant &value, int role )
 {
     if(index.row()<m_servers.size())
     {
@@ -412,13 +476,14 @@ bool Book_Client::setData(const QModelIndex &index, const QVariant &value, int r
     }
     return false;
 }
-bool Book_Client::setProperty(int i,QString role,const QVariant value)
+
+bool BookClient::setProperty(int i,QString role,const QVariant value)
 {
     const auto ind=index(i);
     const auto rol=roleNames().keys(role.toUtf8());
     return setData(ind,value,rol.front());
 }
-QHash<int, QByteArray> Book_Client::roleNames() const {
+QHash<int, QByteArray> BookClient::roleNames() const {
     QHash<int, QByteArray> roles;
     roles[scoreRole] = "score";
     roles[occupiedRole] = "occupied";

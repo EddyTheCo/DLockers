@@ -122,8 +122,6 @@ MapView {
         onClicked:
         {
             control.map.center = client.position.coordinate;
-            console.log("model.count:",BookClient.count);
-
         }
         background: Rectangle
         {

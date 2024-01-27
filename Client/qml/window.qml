@@ -4,8 +4,6 @@ import QtQuick.Controls
 import QtQuick
 import QtQuick.Layouts
 import Esterv.Styles.Simple
-import Esterv.Iota.NodeConnection
-import Esterv.Iota.Account
 import Esterv.Dlockers.Map
 import Esterv.DLockers.Client
 
@@ -53,6 +51,7 @@ ApplicationWindow {
             Layout.maximumWidth: 500
             Layout.minimumWidth: 200
             Layout.minimumHeight: 400
+            visible:BookClient.selected
         }
 
 

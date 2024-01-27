@@ -24,7 +24,7 @@ class Server : public QObject
     Q_PROPERTY(quint8 occupied READ occupied NOTIFY occupiedChanged)
     Q_PROPERTY(float latitude READ latitude NOTIFY latitudeChanged)
     Q_PROPERTY(float longitude READ longitude NOTIFY longitudeChanged)
-    Q_PROPERTY(Qml64*  pph READ pph CONSTANT)
+    Q_PROPERTY(Qml64*  price READ price CONSTANT)
     Q_PROPERTY(DayModel* dayModel  READ dayModel CONSTANT)
     QML_UNCREATABLE("")
     QML_ELEMENT
@@ -45,7 +45,11 @@ public:
     void setOccupied(quint8 occupied){if(occupied!=m_occupied){m_occupied=occupied; emit occupiedChanged();}}
     void setLatitude(float latitude){if(latitude!=m_latitude){m_latitude=latitude; emit latitudeChanged();}}
     void setLongitude(float longitude){if(longitude!=m_longitude){m_longitude=longitude; emit longitudeChanged();}}
-    void setPph(quint64 pph){if(pph!=m_pph->getValue()){m_pph->setValue(pph);}}
+    void setPph(quint64 pph){if(pph!=m_pph){
+            m_pph=pph;
+            m_price->setValue(m_pph*m_dayModel->totalSelected());
+        }
+    }
     void setPayAddress(const c_array payAddress){if(payAddress!=m_payAddress){m_payAddress=payAddress;}}
     void setOutId(c_array outId){if(m_outId!=outId){m_outId=outId;}}
     QString account()const{return m_account;}
@@ -54,7 +58,7 @@ public:
     quint8 occupied()const{return m_occupied;}
     float latitude()const{return m_latitude;}
     float longitude()const{return m_longitude;}
-    Qml64* pph()const{return m_pph;}
+    Qml64* price()const{return m_price;}
     DayModel* dayModel(void)const{return m_dayModel;}
 
     Q_INVOKABLE void sendBookings();
@@ -76,7 +80,8 @@ private:
     quint8 m_occupied;
     c_array m_payAddress,m_outId;
     QString m_account;
-    Qml64* m_pph;
+    quint64 m_pph;
+    Qml64* m_price;
     DayModel* m_dayModel;
 };
 

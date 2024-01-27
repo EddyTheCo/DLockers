@@ -57,7 +57,7 @@ ApplicationWindow {
                 if(!openbut.inOpenBox)
                 {
                     BookServer.getNewOpenAddress();
-                    goback.start();
+                    goback.restart()
                 }
 
 

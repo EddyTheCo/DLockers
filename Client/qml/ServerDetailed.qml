@@ -4,6 +4,7 @@ import QtQuick.Controls
 import Esterv.Styles.Simple
 import Esterv.Dlockers.Bookings
 import Esterv.DLockers.Client
+import Esterv.Iota.AddrBundle
 
 ColumnLayout
 {
@@ -15,20 +16,6 @@ ColumnLayout
         closePolicy: Popup.CloseOnPressOutside
     }
 
-    Label
-    {
-        id:noserver
-        visible:!(BookClient.selected);
-        opacity:0.5
-        Layout.fillHeight: true
-        Layout.fillWidth: true
-        color: Style.frontColor1
-        font.pointSize:250
-        fontSizeMode:Text.Fit
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        text: qsTr("Select the server")
-    }
     RowLayout
     {
         Layout.alignment: Qt.AlignCenter
@@ -38,10 +25,8 @@ ColumnLayout
             Layout.alignment: Qt.AlignCenter
             Layout.margins: 5
             text: qsTr("Book")
-            enabled:BookClient.selected&&BookClient.selected.dayModel.totalSelected
+            enabled:(BookClient.selected)?BookClient.selected.dayModel.totalSelected:false
             onClicked:BookClient.selected.sendBookings();
-            visible:BookClient.selected;
-
         }
         Button
         {
@@ -50,8 +35,33 @@ ColumnLayout
             Layout.margins: 5
             text: qsTr("Open")
             onClicked:openbox.open()
-            visible:BookClient.selected;
+        }
+    }
+    Item
+    {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        Layout.maximumHeight: 50
+        visible:(BookClient.selected)?BookClient.selected.price.json.largeValue.value>0:false
+        RowLayout
+        {
 
+            anchors.centerIn: parent
+            Label
+            {
+                Layout.alignment: Qt.AlignCenter
+                font:Style.h3
+                text:qsTr("Price: ")
+                horizontalAlignment: Text.AlignRight
+            }
+            TextAmount
+            {
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignCenter
+                font:Style.h2
+                amount:(BookClient.selected)?BookClient.selected.price:Qml64
+                horizontalAlignment:Text.AlignLeft
+            }
         }
     }
 
@@ -64,19 +74,17 @@ ColumnLayout
         Layout.fillHeight: true
         Layout.fillWidth: true
         color: Style.frontColor1
-        visible:BookClient.selected;
     }
     DaySwipeView {
         id: dayview
         clip:true
         canBook:true
-        daymodel:BookClient.selected.dayModel
+        daymodel:(BookClient.selected)?BookClient.selected.dayModel:DayModel
         Layout.fillWidth: true
         Layout.fillHeight:  true
         Layout.minimumWidth: 250
         Layout.maximumWidth: 500
         Layout.alignment: Qt.AlignTop|Qt.AlignHCenter
-        visible:BookClient.selected;
     }
 
 

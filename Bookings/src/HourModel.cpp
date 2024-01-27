@@ -35,15 +35,24 @@ QVariant HourModel::data(const QModelIndex &index, int role) const
 }
 bool HourModel::setData(const QModelIndex &index, const QVariant &value, int role )
 {
+    const auto prevState=m_hours[index.row()]->state();
     const auto re=m_hours[index.row()]->setProperty(roleNames().value(role),value);
 
     if(re)
     {
         emit dataChanged(index,index,QList<int>{role});
 
+
         if(roleNames().value(role)=="state")
         {
-            emit totalSelectedChanged((value.toInt()==2)?1:-1);
+            if(prevState==HourBox::Free&&value.toInt()==2)
+                emit totalSelectedChanged(1);
+
+            if(prevState==HourBox::Selected&&(value.toInt()!=2))
+                emit totalSelectedChanged(-1);
+
+
+
         }
         return true;
     }

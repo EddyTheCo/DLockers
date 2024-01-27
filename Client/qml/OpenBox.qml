@@ -2,7 +2,6 @@
 import QtQuick 2.0
 import QtQuick.Layouts
 import QtQuick.Controls
-import Esterv.Styles.Simple
 import Esterv.DLockers.Client
 import Esterv.CustomControls.QrDec
 import Esterv.Iota.AddrBundle
@@ -13,7 +12,7 @@ Popup
     id:control
     anchors.centerIn: Overlay.overlay
 
-
+    onClosed: recAddress.text=""
     ColumnLayout
     {
         Label

@@ -1,5 +1,5 @@
+pragma ComponentBehavior: Bound
 import QtQuick 2.0
-import QtQuick.Controls
 import Esterv.Dlockers.Bookings
 
 ListView {
@@ -11,6 +11,7 @@ ListView {
     flickableDirection:Flickable.VerticalFlick
 
     model: control.hourModel
+
     delegate: HourDelegate {
         width:control.width
         height:width*0.2

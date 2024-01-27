@@ -48,15 +48,15 @@ RowLayout
         Layout.alignment: Qt.AlignHCenter
         border.color:Style.frontColor2
         border.width: 1
-        color: control.state===HourBox.Occupied?'#e7001b':((control.state===HourBox.Selected?Style.backColor3:'transparent'))
+        color: control.state===HourBox.Selected?Style.backColor3:'transparent'
         opacity:0.7
 
         Text
         {
             anchors.fill: parent
-            text: (control.state===HourBox.Selected?"-":"+")
+            text: (control.state===HourBox.Selected?"-":(control.state===HourBox.Occupied)?"xxx":"+")
             fontSizeMode:Text.Fit
-            visible:(control.canBook&&(control.state===HourBox.Selected||control.state===HourBox.Free))
+            visible:(control.canBook&&(control.state===HourBox.Selected||control.state===HourBox.Free||control.state===HourBox.Occupied))
             color:Style.frontColor1
             verticalAlignment:Text.AlignVCenter
             horizontalAlignment:Text.AlignHCenter

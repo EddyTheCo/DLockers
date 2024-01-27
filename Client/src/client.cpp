@@ -13,15 +13,18 @@ using namespace qiota;
 
 Server::Server(QString account,c_array outId, const quint64 pph, const c_array payAddress, const QJsonArray bookings,
                const float latitude, const float longitude, const float score, const quint8 occupied, QObject *parent )
-    :QObject(parent),m_account(account),m_outId(outId),m_pph(new Qml64(pph,this)),m_payAddress(payAddress),
+    :QObject(parent),m_account(account),m_outId(outId),m_pph(pph),m_price(new Qml64(0,this)),m_payAddress(payAddress),
     m_dayModel(new DayModel(this)),m_latitude(latitude),m_longitude(longitude),m_score(score),m_occupied(occupied)
 {
     m_dayModel->addBooking(HourBox::Occupied,bookings);
+    connect(m_dayModel,&DayModel::totalSelectedChanged,m_price,[=](){
+        m_price->setValue(m_pph*m_dayModel->totalSelected());
+    });
 
 }
 BookClient::BookClient(QObject *parent):QAbstractListModel(parent),m_selected(nullptr)
 {
-    Account::instance()->setSeed("maximum veteran table spice young rotate weapon grab couch oxygen fire evil ghost drink bridge speed cupboard mask draw student early leopard follow stadium");
+    //Account::instance()->setSeed("maximum veteran table spice young rotate weapon grab couch oxygen fire evil ghost drink bridge speed cupboard mask draw student early leopard follow stadium");
     connect(Wallet::instance(),&Wallet::synced,this,[=](){
         resetData();
         getServerList();
@@ -44,7 +47,7 @@ void BookClient::getBookings()
 }
 void BookClient::checkNFTforBook(std::shared_ptr<const qblocks::Output> output)
 {
-    qDebug()<<"BookClient::checkNFTforBook";
+
     if(output->type()==Output::NFT_typ)
     {
         const auto issuerfeature=output->get_immutable_feature_(Feature::Issuer_typ);
@@ -169,7 +172,8 @@ void BookClient::deserializeState(const QString account,const c_array outId,cons
     const float longitude=coords.at(1).toDouble();
 
     const auto score=5.0;
-    const auto occupied=0;
+    
+    const quint8 occupied=(var["o"].isUndefined())?0:var["o"].toInt();
 
     if(!var["b"].isUndefined()&&var["b"].isArray())
     {
@@ -287,7 +291,7 @@ void Server::sendBookings()
 
         auto mineUnlock=Unlock_Condition::Address(retAddr);
 
-        auto price=Booking::price(books,m_pph->getValue());
+        auto price=Booking::price(books,m_pph);
 
         auto mindeposit=Client::get_deposit(Output::Basic(0,{addrUnlcon}),info);
 

@@ -3,11 +3,9 @@ import QtQuick.Layouts
 import QtQuick.Controls
 
 import Esterv.CustomControls.QrGen
-import Esterv.Iota.Account
 import Esterv.Styles.Simple
 import Esterv.Iota.AddrBundle
 import Esterv.Iota.Wallet
-import Esterv.Iota.NodeConnection
 
 
 Rectangle

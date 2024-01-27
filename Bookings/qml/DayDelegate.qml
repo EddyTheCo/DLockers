@@ -1,5 +1,4 @@
 import QtQuick 2.0
-import QtQuick.Layouts
 import Esterv.Dlockers.Bookings
 import Esterv.Styles.Simple
 
@@ -10,6 +9,7 @@ Item
     required property  date day
     required property  HourModel hourModel
     required property  bool canBook
+
 
     Rectangle
     {

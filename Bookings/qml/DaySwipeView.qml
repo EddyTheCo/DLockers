@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick 2.0
 import QtQuick.Controls
 import Esterv.Dlockers.Bookings
@@ -8,10 +9,11 @@ SwipeView {
     required property bool canBook
     required property DayModel daymodel
 
+
     currentIndex: 0
 
     Repeater {
-        model: daymodel
+        model: control.daymodel
         delegate: DayDelegate {
             canBook:control.canBook
             width:control.width

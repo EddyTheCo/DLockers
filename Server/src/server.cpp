@@ -10,6 +10,7 @@
 #include "account.hpp"
 #include"lgpio.h"
 
+
 #include <QGuiApplication>
 #if QT_CONFIG(permissions)
 #include <QPermission>
@@ -107,14 +108,13 @@ void BookServer::restart(void)
 }
 
 
-BookServer::BookServer(QObject *parent):QObject(parent),m_pph(10000),m_GeoCoord(41.952229,12.58100),m_state(Ready),m_open(false),m_dayModel(new DayModel(this))
+BookServer::BookServer(QObject *parent):QObject(parent),m_pph(10000),m_GeoCoord(41.852229,12.45100),m_state(Ready),m_open(false),m_dayModel(new DayModel(this))
 {
 
-    Account::instance()->setSeed("outer broccoli mango tourist hungry venue industry twin grass pluck culture alley crane shy differ cage annual fit also diagram salmon spring original wild");
+    //Account::instance()->setSeed("outer broccoli mango tourist hungry venue industry twin grass pluck culture alley crane shy differ cage annual fit also diagram salmon spring original wild");
     Wallet::instance()->setAddressRange(2);
     checkLPermission();
     connect(Wallet::instance(),&Wallet::synced,this,[=](){
-        qDebug()<<"naddresses:"<<Wallet::instance()->nRootAddresses();
         if(Wallet::instance()->nRootAddresses()==2)
         {
             disconnect(Wallet::instance(),&Wallet::synced,this,nullptr);
@@ -124,7 +124,6 @@ BookServer::BookServer(QObject *parent):QObject(parent),m_pph(10000),m_GeoCoord(
 
 
 }
-
 void BookServer::initGPS(void)
 {
     PosSource = QGeoPositionInfoSource::createSource("nmea", {std::make_pair("nmea.source",SERIAL_PORT_NAME)}, this);
@@ -351,7 +350,7 @@ void BookServer::handleNewBook(c_array bookId,std::shared_ptr<const qblocks::Out
 
                             consumedAmount+=Wallet::instance()->
                                               consume(inputSet,stateOutputs,0,{Output::Basic_typ},{m_pubId});
-
+                            cleanState();
                             const auto pubOut=getPublishOutput();
                             qDebug()<<"consumedAmount2:"<<consumedAmount;
                             qDebug()<<"NftOut->amount_:"<<NftOut->amount_;
@@ -376,7 +375,7 @@ void BookServer::handleNewBook(c_array bookId,std::shared_ptr<const qblocks::Out
                                 NodeConnection::instance()->rest()->send_block(block);
 
                                 m_dayModel->addBooking(HourBox::Occupied,varBooks);
-                                cleanState();
+
                                 qDebug()<<"finished";
                             }
                         }
@@ -401,6 +400,7 @@ void BookServer::handleInitFunds(QString payAddress)
     QObject::connect(info,&Node_info::finished,this,[=]( ){
 
         qDebug()<<"BookServer::handleInitFunds";
+        cleanState();
         auto pubOut=getPublishOutput();
         const auto minOutputPub=Client::get_deposit(pubOut,info);
 
@@ -445,14 +445,19 @@ void BookServer::handleInitFunds(QString payAddress)
 
 QByteArray BookServer::serializeState()const
 {
+
     QJsonObject var;
     QJsonArray bookings;
-
+    quint64 duration=0;
     for(const auto& v: m_books)
     {
         bookings.append(v.start().toSecsSinceEpoch());
         bookings.append(v.end().toSecsSinceEpoch());
+        duration+=(v.end()-v.start()).count();
     }
+    const quint8 occupied=100.0*duration/(7*24*60*60*1000);
+
+    var.insert("o",occupied);
     var.insert("b",bookings);
     var.insert("pph",QString::number(m_pph));
     var.insert("pt",(++Wallet::instance()->addresses().begin())->second->getAddressHash());

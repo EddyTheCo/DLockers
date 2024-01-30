@@ -60,7 +60,6 @@ ApplicationWindow {
                     goback.restart()
                 }
 
-
                 openbut.inOpenBox=!openbut.inOpenBox;
             }
             Timer {
@@ -113,12 +112,12 @@ ApplicationWindow {
                 id: dayview
                 clip:true
                 canBook:false
-                daymodel: BookServer.dayModel
+                dayModel: BookServer.dayModel
                 Layout.fillWidth: true
                 Layout.fillHeight:  true
                 Layout.minimumWidth: 250
                 Layout.alignment: Qt.AlignCenter
-                visible:!openbut.inOpenBox
+                visible:!(openbut.inOpenBox)
             }
             OpenBox
             {
@@ -138,8 +137,8 @@ ApplicationWindow {
                 Layout.minimumHeight: 150
                 Layout.maximumHeight: width
                 Layout.alignment: Qt.AlignCenter
-                latitude:BookServer.GeoCoord.latitude
-                longitude:BookServer.GeoCoord.longitude
+                latitude:BookServer.coords[0]
+                longitude:BookServer.coords[1]
                 color:Style.frontColor2
             }
         }

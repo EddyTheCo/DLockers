@@ -11,6 +11,7 @@ Popup
 {
     id:control
     anchors.centerIn: Overlay.overlay
+    signal present( string address)
 
     onClosed: recAddress.text=""
     ColumnLayout
@@ -38,8 +39,8 @@ Popup
             enabled:recAddrCheck.valid
             onClicked:
             {
-                control.close();
-                BookClient.selected.presentNft(recAddress.text);
+                control.present(recAddress.text);
+                control.close();                
             }
             Layout.alignment: Qt.AlignRight
         }

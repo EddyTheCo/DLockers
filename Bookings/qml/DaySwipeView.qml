@@ -7,13 +7,12 @@ import Esterv.Dlockers.Bookings
 SwipeView {
     id: control
     required property bool canBook
-    required property DayModel daymodel
-
+    required property DayModel dayModel
 
     currentIndex: 0
-
     Repeater {
-        model: control.daymodel
+        model: control.dayModel
+
         delegate: DayDelegate {
             canBook:control.canBook
             width:control.width

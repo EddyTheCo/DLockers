@@ -5,17 +5,50 @@ import Esterv.Styles.Simple
 import Esterv.Dlockers.Bookings
 import Esterv.DLockers.Client
 import Esterv.Iota.AddrBundle
+import Esterv.CustomControls.QrGen
+import Esterv.Iota.Wallet
 
 ColumnLayout
 {
     id:control
+    required property string account;
+    required property DayModel dayModel;
+    required property int index;
+    required property Qml64 price;
+
     OpenBox
     {
         id:openbox
         visible:false
         closePolicy: Popup.CloseOnPressOutside
+        onPresent: (address) =>
+                   {
+                       console.log("onPresent:",address);
+                       BookClient.presentNFT(control.index,address);
+                   }
     }
 
+    RowLayout
+    {
+        Layout.fillWidth: true
+        Layout.maximumWidth: 250
+        Layout.margins: 5
+        Layout.alignment: Qt.AlignHCenter|Qt.AlignTop
+
+        Label
+        {
+            id:accl
+            text:qsTr("Server Id:")
+            horizontalAlignment:Text.AlignRight
+        }
+        QrText
+        {
+            text: control.account
+            Layout.fillWidth: true
+            Layout.maximumWidth: implicitWidth
+            horizontalAlignment:Text.AlignLeft
+        }
+    }
     RowLayout
     {
         Layout.alignment: Qt.AlignCenter
@@ -25,8 +58,8 @@ ColumnLayout
             Layout.alignment: Qt.AlignCenter
             Layout.margins: 5
             text: qsTr("Book")
-            enabled:(BookClient.selected)?BookClient.selected.dayModel.totalSelected:false
-            onClicked:BookClient.selected.sendBookings();
+            enabled:control.dayModel.totalSelected&&((Object.keys(Wallet.amount.json).length != 0)&&Wallet.amount.json.largeValue.value>0)
+            onClicked: BookClient.sendBookings(control.index)
         }
         Button
         {
@@ -36,13 +69,14 @@ ColumnLayout
             text: qsTr("Open")
             onClicked:openbox.open()
         }
+
     }
     Item
     {
         Layout.fillWidth: true
         Layout.fillHeight: true
         Layout.maximumHeight: 50
-        visible:(BookClient.selected)?BookClient.selected.price.json.largeValue.value>0:false
+        visible:control.price.json.largeValue.value>0
         RowLayout
         {
 
@@ -59,7 +93,7 @@ ColumnLayout
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignCenter
                 font:Style.h2
-                amount:(BookClient.selected)?BookClient.selected.price:Qml64
+                amount:control.price
                 horizontalAlignment:Text.AlignLeft
             }
         }
@@ -75,16 +109,18 @@ ColumnLayout
         Layout.fillWidth: true
         color: Style.frontColor1
     }
+
     DaySwipeView {
         id: dayview
         clip:true
         canBook:true
-        daymodel:(BookClient.selected)?BookClient.selected.dayModel:DayModel
+        dayModel:control.dayModel
         Layout.fillWidth: true
         Layout.fillHeight:  true
         Layout.minimumWidth: 250
         Layout.maximumWidth: 500
         Layout.alignment: Qt.AlignTop|Qt.AlignHCenter
+
     }
 
 

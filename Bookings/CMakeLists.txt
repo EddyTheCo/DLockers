@@ -21,6 +21,8 @@ if(Qt6_FOUND)
 		"qml/HourListView.qml"
 		RESOURCE_PREFIX
 		"/esterVtech.com/imports"
+                RESOURCES
+                "qml/images/occupied.png"
 		OUTPUT_TARGETS out_targets_var
 		OUTPUT_DIRECTORY
 		${CMAKE_BINARY_DIR}/Esterv/Dlockers/Bookings

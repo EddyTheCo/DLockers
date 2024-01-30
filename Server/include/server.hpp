@@ -6,8 +6,10 @@
 #include<set>
 #include<queue>
 
-
+#if defined(RPI_SERVER)
 #include <QGeoPositionInfoSource>
+#endif
+
 #include "DayModel.hpp"
 #include "block/qoutputs.hpp"
 #include "client/qnode_outputs.hpp"
@@ -19,7 +21,7 @@ class BookServer : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool  open READ isOpen NOTIFY openChanged)
-    Q_PROPERTY(QGeoCoordinate  GeoCoord MEMBER m_GeoCoord NOTIFY geoCoordChanged)
+    Q_PROPERTY(std::vector<qreal> coords READ coords NOTIFY coordsChanged)
     Q_PROPERTY(DayModel* dayModel  READ dayModel CONSTANT)
     Q_PROPERTY(State  state READ state NOTIFY stateChanged)
     Q_PROPERTY(QString  openAddress READ getOpenAddress NOTIFY openAddressChanged)
@@ -33,9 +35,14 @@ public:
         Ready
     };
     Q_ENUM(State)
-
+    static BookServer* instance(){return m_instance;}
     DayModel* dayModel(void)const{return m_dayModel;}
-
+    std::vector<qreal> coords()const{return m_coords;}
+    void setCoords(float lat,float lon)
+    {
+        m_coords.at(0)=lat;
+        m_coords.at(1)=lon;
+    }
     void setOpen(bool op){if(op!=m_open){m_open=op;emit openChanged();}}
     bool isOpen()const{return m_open;}
 
@@ -47,20 +54,20 @@ public:
 
 
 signals:
-    void geoCoordChanged();
+    void coordsChanged();
     void stateChanged();
     void openChanged();
     void openAddressChanged();
 
 private:
-    void openBox(void);
+    void publishState();
     void checkNftToOpen(std::shared_ptr<const qblocks::Output> output);
     QByteArray serializeState(void)const;
-    void monitorPayments(QString payAddress);
+    void monitorPayments();
     void restart();
-    void checkStateOutput(c_array outId, QString payAddress,std::shared_ptr<const qblocks::Output> output);
+    void checkStateOutput(c_array outId, std::shared_ptr<const qblocks::Output> output);
     void handleNewBook(c_array bookId,std::shared_ptr<const qblocks::Output> bookOut);
-    void handleInitFunds(QString payAddress);
+    void handleInitFunds();
     std::shared_ptr<qblocks::Output> getPublishOutput()const;
     void cleanState(void);
 
@@ -71,13 +78,20 @@ private:
     quint64 m_pph;
     void checkLPermission();
     void initGPS();
-    QGeoPositionInfoSource *PosSource;
-    QGeoCoordinate m_GeoCoord;
+
+    std::vector<qreal> m_coords;
     DayModel* m_dayModel;
     State m_state;
     c_array  m_pubId;
     bool m_open;
     QString m_openAddress;
+    QTimer * m_timer;
+    QObject* receiver;
+#if defined(RPI_SERVER)
+    void openBox(void);
+    QGeoPositionInfoSource *PosSource;
+#endif
+    static BookServer* m_instance;
 };
 
 

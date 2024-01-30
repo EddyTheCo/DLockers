@@ -54,6 +54,7 @@ public:
         stateRole
     };
     int count() const;
+    void clean();
     explicit HourModel(int hstart,QObject *parent = nullptr);
     Q_INVOKABLE bool setProperty(int i, QString role, const QVariant value);
 

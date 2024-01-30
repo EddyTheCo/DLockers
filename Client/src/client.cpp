@@ -22,7 +22,7 @@ Server::Server(QString account,c_array outId, const quint64 pph, const c_array p
     });
 
 }
-BookClient::BookClient(QObject *parent):QAbstractListModel(parent),m_selected(nullptr)
+BookClient::BookClient(QObject *parent):QAbstractListModel(parent),m_selected(-1)
 {
     //Account::instance()->setSeed("maximum veteran table spice young rotate weapon grab couch oxygen fire evil ghost drink bridge speed cupboard mask draw student early leopard follow stadium");
     connect(Wallet::instance(),&Wallet::synced,this,[=](){
@@ -34,9 +34,7 @@ BookClient::BookClient(QObject *parent):QAbstractListModel(parent),m_selected(nu
 }
 void BookClient::getBookings()
 {
-    qDebug()<<"BookClient::getBookings";
     const auto nfts=Wallet::instance()->getNFTs();
-    qDebug()<<"nfts.size:"<<nfts.size();
     for(const auto& v: nfts)
     {
         checkNFTforBook(v.second);
@@ -80,7 +78,7 @@ void BookClient::setSelected(int ind)
 {
     if(ind<m_servers.size())
     {
-        m_selected=m_servers.at(ind);
+        m_selected=ind;
         emit selectedChanged();
     }
 
@@ -104,7 +102,7 @@ void BookClient::getServerList(void)
     auto info=NodeConnection::instance()->rest()->get_api_core_v2_info();
     connect(info,&Node_info::finished,this,[=]( ){
         auto nodeOutputs=NodeConnection::instance()->rest()->get_outputs<Output::Basic_typ>
-                           ("tag="+fl_array<quint8>("DLockers").toHexString());
+                           ("tag="+fl_array<quint8>("DLockers").toHexString()+"&createdAfter="+QString::number(QDateTime::currentSecsSinceEpoch()-60*60));
         const auto hrp=info->bech32Hrp;
         connect(nodeOutputs,&Node_outputs::finished,this,[=]( ){
             for(const auto & v:nodeOutputs->outs_)
@@ -493,8 +491,8 @@ QHash<int, QByteArray> BookClient::roleNames() const {
     roles[occupiedRole] = "occupied";
     roles[latitudeRole] = "latitude";
     roles[longitudeRole] = "longitude";
-    roles[pphRole] = "pph";
-    roles[DayModelRole] = "DayModel";
+    roles[priceRole] = "price";
+    roles[dayModelRole] = "dayModel";
     roles[accountRole]= "account";
     return roles;
 }

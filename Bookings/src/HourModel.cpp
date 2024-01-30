@@ -51,8 +51,6 @@ bool HourModel::setData(const QModelIndex &index, const QVariant &value, int rol
             if(prevState==HourBox::Selected&&(value.toInt()!=2))
                 emit totalSelectedChanged(-1);
 
-
-
         }
         return true;
     }
@@ -64,6 +62,13 @@ bool HourModel::setProperty(int i,QString role,const QVariant value)
     const auto ind=index(i);
     const auto rol=roleNames().keys(role.toUtf8());
     return setData(ind,value,rol.front());
+}
+void HourModel::clean()
+{
+    for(auto i=0;i<m_hours.size();i++)
+    {
+        setProperty(i,"state",HourBox::Free);
+    }
 }
 void HourModel::rmSentBookedHours(const std::vector<int>& booked_hours)
 {
@@ -90,7 +95,7 @@ void HourModel::addBookedHours(const HourBox::State state, const std::vector<int
                 if(state==HourBox::Booking)
                 {
                     QTimer::singleShot(60000, m_hours.at(ind), [=](){
-                        if(m_hours.at(ind)->state()!=HourBox::Booked)
+                        if(m_hours.at(ind)->state()!=HourBox::Booked&&m_hours.at(ind)->state()!=HourBox::Occupied)
                         {
                             setProperty(ind,"state",HourBox::Free);
                         }

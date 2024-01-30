@@ -40,45 +40,65 @@ ApplicationWindow {
         width: Math.max(parent.width*0.2,350)
         height: window.height
     }
+
+    Connections {
+        target: BookClient
+        function onSelectedChanged() {
+            serversDetails.visible=true;
+            if(rlt.onecolumn)objmapview.visible=false;
+        }
+    }
     RowLayout
     {
+        id: rlt
         anchors.fill: parent
+        property bool onecolumn:(parent.width<600)
 
-        ServerDetailed
+        ListView
         {
+            id:serversDetails
+            clip:true
+            interactive:false
             Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.maximumWidth: 500
-            Layout.minimumWidth: 200
-            Layout.minimumHeight: 400
-            visible:BookClient.selected
-        }
-
-
-
-        ObjectMapView
-        {
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            Layout.minimumWidth: 100
-            Layout.minimumHeight: 500
-            AccountMenu
+            Layout.minimumWidth: 350
+            Layout.alignment: Qt.AlignHCenter|Qt.AlignTop
+            visible:!rlt.onecolumn
+            model: BookClient
+            currentIndex:BookClient.selected
+            delegate:ServerDetailed
             {
-                width:Math.min(300,parent.width)
-                height:250
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: parent.bottom
-                onShowSettings: drawer.open();
+                width:serversDetails.width
+                height:serversDetails.height
             }
 
         }
 
 
-
-
+        ObjectMapView
+        {
+            id:objmapview
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.minimumWidth: 300
+        }
 
     }
-
+    AccountMenu
+    {
+        width:Math.min(350,parent.width)
+        height:200
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        onShowSettings: drawer.open();
+        showMapO:rlt.onecolumn&&!objmapview.visible
+        onShowMap:
+        {
+            objmapview.visible=true;
+            serversDetails.visible=false;
+        }
+    }
 
 
 }

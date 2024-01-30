@@ -11,19 +11,21 @@ import Esterv.Iota.Wallet
 Rectangle
 {
     id:root
-    property bool incolum: height>300
+    property bool showMapO: false
     signal showSettings()
+    signal showMap()
     color:Style.backColor2
     radius:3
 
     ColumnLayout
     {
         anchors.fill: parent
+        anchors.margins: 10
         RowLayout
         {
             Layout.fillWidth: true
             Layout.minimumWidth: 300
-            Layout.margins: 5
+
 
             Label
             {
@@ -65,16 +67,22 @@ Rectangle
             Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignCenter
-            Layout.minimumHeight: 45+100*root.incolum
-            flow: root.incolum ? GridLayout.TopToBottom : GridLayout.LeftToRight
+            Layout.minimumHeight: 45
+            flow: GridLayout.LeftToRight
             Button
             {
                 id:settings_
                 text:qsTr("Settings")
-                onReleased:root.showSettings();
-                Layout.fillWidth: true
-                Layout.maximumWidth: 200
-                Layout.maximumHeight:  50
+                onReleased:root.showSettings();                
+                ToolTip.text: text
+                ToolTip.visible: hovered
+            }
+            Button
+            {
+                id:map
+                text:qsTr("Map")
+                onClicked:root.showMap();
+                visible:root.showMapO
                 ToolTip.text: text
                 ToolTip.visible: hovered
             }

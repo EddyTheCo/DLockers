@@ -12,7 +12,6 @@ MapQuickItem {
             required property int occupied;
             required property int index;
             signal showDirections(var coords)
-
             coordinate: QtPositioning.coordinate(latitude, longitude)
             autoFadeIn:false
             sourceItem: Image {
@@ -37,7 +36,10 @@ MapQuickItem {
                score:control.score
                occupied:control.occupied
 
-               onSelected: BookClient.setSelected(control.index);
+               onSelected:
+               {
+                    BookClient.setSelected(control.index);
+               }
                onShowDirections: control.showDirections(QtPositioning.coordinate(latitude, longitude));
            }
         }

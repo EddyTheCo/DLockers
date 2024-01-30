@@ -61,8 +61,8 @@ public:
     Qml64* price()const{return m_price;}
     DayModel* dayModel(void)const{return m_dayModel;}
 
-    Q_INVOKABLE void sendBookings();
-    Q_INVOKABLE void presentNft(const QString address);
+    void sendBookings();
+    void presentNft(const QString address);
 
 signals:
     void scoreChanged();
@@ -89,22 +89,32 @@ class BookClient : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
-    Q_PROPERTY(Server* selected READ getSelected NOTIFY selectedChanged)
+    Q_PROPERTY(int selected READ selected NOTIFY selectedChanged)
     QML_ELEMENT
     QML_SINGLETON
 
 public:
     enum ModelRoles {
         scoreRole = Qt::UserRole + 1, accountRole,
-        occupiedRole,latitudeRole,longitudeRole,pphRole,DayModelRole};
+        occupiedRole,latitudeRole,longitudeRole,priceRole,dayModelRole};
     int count() const
     {
         return m_servers.size();
     }
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
     Q_INVOKABLE bool setProperty(int i, QString role, const QVariant value);
-    Server * getSelected()const{ return m_selected;};
     Q_INVOKABLE void setSelected(int ind);
+    int selected(void)const{return m_selected;}
+    Q_INVOKABLE void sendBookings(int index)
+    {
+        if(index>-1&&index<m_servers.size())
+            m_servers.at(index)->sendBookings();
+    };
+    Q_INVOKABLE void presentNFT(int index,QString address)
+    {
+        if(index>-1&&index<m_servers.size())
+            m_servers.at(index)->presentNft(address);
+    };
 
     QHash<int, QByteArray> roleNames() const;
     int rowCount(const QModelIndex &p) const{
@@ -130,6 +140,6 @@ private:
     void getServerList(void);
     void addServer(QString account);
     void getServer(std::shared_ptr<const Output>, c_array outId, QString hrp);
-    Server* m_selected;
+    int m_selected;
     QList<Server*> m_servers;
 };

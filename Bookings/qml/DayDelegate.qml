@@ -11,6 +11,7 @@ Item
     required property  bool canBook
 
 
+
     Rectangle
     {
 
@@ -25,8 +26,8 @@ Item
             width:parent.width
             height:parent.height*0.65
             text: control.day.toLocaleString(Qt.locale(),"ddd")
-            anchors.bottomMargin: parent.height*0.03
             color: Style.frontColor1
+            font.family: Style.h1.family
             font.pointSize:250
             fontSizeMode:Text.Fit
             horizontalAlignment: Text.AlignHCenter
@@ -36,8 +37,8 @@ Item
             width:parent.width
             height:parent.height*0.3
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: parent.height*0.02
             text: control.day.toLocaleString(Qt.locale(),"dd/MM/yy")
+            font.family: Style.h1.family
             font.pointSize:250
             color: Style.frontColor1
             fontSizeMode:Text.Fit
@@ -52,7 +53,7 @@ Item
         width:parent.width
         height:parent.height*0.8
         canBook:control.canBook
-        hourModel: control.hourModel
+        hourModel:control.hourModel
     }
 
 

@@ -58,13 +58,6 @@ MapView {
     }
 
 
-    onVisibleChanged: {
-        if(control.visible)
-        {
-            LocationPermisioner.checkPermission();
-        }
-    }
-
     Component.onCompleted: {
         control.map.addMapItem(marker);
         control.map.addMapItemView(objView);

@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Effects
 import Esterv.Dlockers.Bookings
 import Esterv.Styles.Simple
 
@@ -19,6 +20,8 @@ RowLayout
         id:time
         text: (control.hour<12)?(((control.hour)?control.hour:12)+" " + Qt.locale().amText):((control.hour===12)?12:control.hour-12)+" "+ Qt.locale().pmText;
         color: Style.frontColor1
+        font.family: Style.h1.family
+        font.pointSize:20
         Layout.preferredWidth: 80
         Layout.minimumWidth: 50
         Layout.fillHeight: true
@@ -42,6 +45,7 @@ RowLayout
 
     Rectangle
     {
+        id:box
         Layout.preferredWidth: 150
         Layout.fillHeight: true
         Layout.fillWidth: true
@@ -51,12 +55,26 @@ RowLayout
         color: control.state===HourBox.Selected?Style.backColor3:'transparent'
         opacity:0.7
 
+        Image {
+            id:img
+            source: "qrc:/esterVtech.com/imports/Esterv/Dlockers/Bookings/qml/images/occupied.png"
+            visible:false
+            anchors.fill: parent
+        }
+        MultiEffect {
+            source: img
+            anchors.fill: img
+            colorizationColor: Style.frontColor1
+            colorization: 0.8
+            visible:control.state===HourBox.Occupied
+        }
+
         Text
         {
             anchors.fill: parent
-            text: (control.state===HourBox.Selected?"-":(control.state===HourBox.Occupied)?"xxx":"+")
+            text: control.state===HourBox.Selected?"-":"+"
             fontSizeMode:Text.Fit
-            visible:(control.canBook&&(control.state===HourBox.Selected||control.state===HourBox.Free||control.state===HourBox.Occupied))
+            visible:(control.canBook&&(control.state===HourBox.Selected||control.state===HourBox.Free))
             color:Style.frontColor1
             verticalAlignment:Text.AlignVCenter
             horizontalAlignment:Text.AlignHCenter
@@ -93,7 +111,7 @@ RowLayout
             anchors.fill: parent
             enabled:control.canBook&&(control.state===HourBox.Free||control.state===HourBox.Selected)
             onClicked: {
-                    control.ListView.view.model.setProperty(control.index,"state",(control.state===HourBox.Free)?HourBox.Selected:HourBox.Free)
+                control.ListView.view.model.setProperty(control.index,"state",(control.state===HourBox.Free)?HourBox.Selected:HourBox.Free)
             }
         }
     }

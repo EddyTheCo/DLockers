@@ -50,7 +50,7 @@ public:
 
     QJsonArray getNewBookings(void);
     void addBooking(const HourBox::State state, const QJsonArray &books);
-
+    void clean();
     void removeSentBooking(const std::vector<Booking> &bookings);
 
     void addToTotalSelected(int sel){m_totalSelected+=sel; emit totalSelectedChanged(m_totalSelected);}
@@ -66,7 +66,6 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
     QHash<int, QByteArray> roleNames() const;
-
 
 
 signals:

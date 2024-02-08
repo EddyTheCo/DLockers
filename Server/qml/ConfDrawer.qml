@@ -42,11 +42,7 @@ Drawer
             id:conn_
             Layout.fillWidth: true
         }
-        AccountSettings
-        {
-            id:acc_
-            Layout.fillWidth: true
-        }
+
     }
 
 }

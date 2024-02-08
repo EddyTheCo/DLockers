@@ -1,10 +1,10 @@
 
-
+set(VAULT_PASS "EstervDlockers")
 
 FetchContent_Declare(
     qrCode
     GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-    GIT_TAG  improvements
+    GIT_TAG  develop
     FIND_PACKAGE_ARGS 1.0 CONFIG
 )
 set(BUILD_QRDEC OFF)
@@ -41,6 +41,8 @@ qt_standard_project_setup()
 
 
 qt_add_executable(lockersServer main.cpp)
+
+target_compile_definitions(lockersServer PRIVATE VAULT_PASS="${VAULT_PASS}")
 
 if(RPI_SERVER AND NOT EMSCRIPTEN)
     target_link_libraries(lockersServer PRIVATE lgpio)

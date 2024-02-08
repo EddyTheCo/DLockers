@@ -4,6 +4,7 @@
 #include<QJsonDocument>
 #include<QTimer>
 #include <QRandomGenerator>
+#include <QStandardPaths>
 
 #include "qwallet.hpp"
 #include"nodeConnection.hpp"
@@ -215,6 +216,18 @@ void BookServer::restart(void)
 BookServer::BookServer(QObject *parent):QObject(parent),m_pph(10000),m_coords({-90+QRandomGenerator::system()->generateDouble()*180,-180+QRandomGenerator::system()->generateDouble()*360}),m_state(Ready),m_open(false),m_dayModel(new DayModel(this)),
     m_timer(new QTimer(this)),receiver(nullptr)
 {
+    Account::instance()->setVaultFile(
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/dlockerServer/qvault.bin");
+
+    if(Account::instance()->getIsVaultEmpty())
+    {
+        Account::instance()->writeToVault(VAULT_PASS);
+    }
+    else
+    {
+        Account::instance()->readFromVault(VAULT_PASS);
+    }
+
     //Account::instance()->setSeed("marriage casual adjust trim rail jungle impact view lyrics ginger taxi upset edit negative crystal base amount food wine suit vendor scrub arrow basket");
     m_instance=this;
     connect(Wallet::instance(),&Wallet::synced,this,[=](){

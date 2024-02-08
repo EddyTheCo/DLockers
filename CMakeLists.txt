@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 set(USE_QML ON)
-option(BUILD_CLIENT "Build the Client application" OFF)
+option(BUILD_CLIENT "Build the Client application" ON)
 option(BUILD_SERVER "Build the Server application" ON)
 option(RPI_SERVER "Build real server or test Server" OFF)
 
@@ -33,7 +33,7 @@ include(GNUInstallDirs)
 FetchContent_Declare(
 	EstervDesigns
 	GIT_REPOSITORY https://github.com/EddyTheCo/MyDesigns.git
-	GIT_TAG improvements
+        GIT_TAG develop
 	FIND_PACKAGE_ARGS 1.1  CONFIG
 	)
 FetchContent_MakeAvailable(EstervDesigns)
@@ -42,7 +42,7 @@ FetchContent_MakeAvailable(EstervDesigns)
 FetchContent_Declare(
 	IotaWallet
 	GIT_REPOSITORY https://github.com/EddyTheCo/qWallet-IOTA.git
-	GIT_TAG improvements
+        GIT_TAG develop
 	FIND_PACKAGE_ARGS 0.1 CONFIG
 	)
 FetchContent_MakeAvailable(IotaWallet)

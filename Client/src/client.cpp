@@ -24,7 +24,9 @@ Server::Server(QString account,c_array outId, const quint64 pph, const c_array p
 }
 BookClient::BookClient(QObject *parent):QAbstractListModel(parent),m_selected(-1)
 {
-    //Account::instance()->setSeed("maximum veteran table spice young rotate weapon grab couch oxygen fire evil ghost drink bridge speed cupboard mask draw student early leopard follow stadium");
+    Account::instance()->setVaultFile(
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/dlockerClient/qvault.bin");
+
     connect(Wallet::instance(),&Wallet::synced,this,[=](){
         resetData();
         getServerList();

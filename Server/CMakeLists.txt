@@ -4,7 +4,7 @@ set(VAULT_PASS "EstervDlockers")
 FetchContent_Declare(
     qrCode
     GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-    GIT_TAG  develop
+    GIT_TAG  v1.0.3
     FIND_PACKAGE_ARGS 1.0 CONFIG
 )
 set(BUILD_QRDEC OFF)
@@ -13,8 +13,8 @@ FetchContent_MakeAvailable(qrCode)
 FetchContent_Declare(
     OMQml
     GIT_REPOSITORY https://github.com/EddyTheCo/OMClient.git
-    GIT_TAG v0.2.0
-    FIND_PACKAGE_ARGS 0.1 CONFIG
+    GIT_TAG v0.2.1
+    FIND_PACKAGE_ARGS 0.2 CONFIG
 )
 FetchContent_MakeAvailable(OMQml)
 if(RPI_SERVER AND NOT EMSCRIPTEN)

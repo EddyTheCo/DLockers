@@ -3,17 +3,28 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 
-bool Booking::check_validity(const QDateTime & ref)const
+Booking::Booking(const qint64 &start,const qint64 &end):
+    m_start(QDateTime::fromSecsSinceEpoch(start)),m_end(QDateTime::fromSecsSinceEpoch(end))
 {
-    if(ref<QDateTime::fromSecsSinceEpoch((*this)["finish"].toInteger()))return true;
 
-    return false;
 }
-std::vector<QDate> Booking::get_days(void)const
+bool Booking::checkValidity(const QDateTime & ref)const
+{
+    return ref<m_end;
+}
+bool Booking::isValid()const
+{
+    return m_end>m_start;
+}
+bool Booking::contains(const QDateTime & ref)const
+{
+    return m_start<=ref&&m_end>ref;
+}
+std::vector<QDate> Booking::getDays(void)const
 {
     std::vector<QDate> days;
-    auto startday=QDateTime::fromSecsSinceEpoch((*this)["start"].toInteger()).date();
-    const auto finishday=QDateTime::fromSecsSinceEpoch((*this)["finish"].toInteger()).date();
+    auto startday=m_start.date();
+    const auto finishday=m_end.date();
     days.push_back(startday);
 
     for(auto i=0;i<startday.daysTo(finishday);i++)
@@ -24,14 +35,14 @@ std::vector<QDate> Booking::get_days(void)const
 
     return days;
 }
-std::vector<int> Booking::get_hours(const QDate& day)const
+std::vector<int> Booking::getHours(const QDate& day)const
 {
     std::vector<int> booked_hours;
 
-    auto st=(day==QDateTime::fromSecsSinceEpoch((*this)["start"].toInteger()).date())?
-                QDateTime::fromSecsSinceEpoch((*this)["start"].toInteger()).time():QTime(0,0);
-    auto fi=(day==QDateTime::fromSecsSinceEpoch((*this)["finish"].toInteger()).date())?
-                QDateTime::fromSecsSinceEpoch((*this)["finish"].toInteger()).time():QTime(23,59,59,59);
+    auto st=(day==m_start.date())?
+                  m_start.time():QTime(0,0);
+    auto fi=(day==m_end.date())?
+                  m_end.time():QTime(23,59,59,59);
     auto interval=(st.secsTo(fi)+1)/60/60;
     for(auto i =0;i<interval;i++)
     {
@@ -40,41 +51,41 @@ std::vector<int> Booking::get_hours(const QDate& day)const
     return booked_hours;
 }
 
-quint64 Booking::calculate_price(quint64 per_hour)const
+quint64 Booking::price(quint64 per_hour)const
 {
-    const auto hours=((*this)["finish"].toInteger()-(*this)["start"].toInteger()+1)/60/60;
-    return per_hour*hours;
+    const auto hours=(m_end-m_start);
+
+    return per_hour*(hours.count()+1000)/60/60/1000;
 }
-std::vector<Booking> Booking::from_Array(const QJsonArray &books)
+std::vector<Booking> Booking::fromArray(const QJsonArray &books)
 {
     std::vector<Booking> var;
     for(auto i=0;i<books.size();i++)
     {
-
-        if(i%2)
+        if(i%2&&books.at(i-1).toInteger()>0&&books.at(i).toInteger()>0)
         {
-            auto b=Booking({{"start",books.at(i-1)},{"finish",books.at(i)}});
+            auto b=Booking(books.at(i-1).toInteger(),books.at(i).toInteger());
             var.push_back(b);
         }
 
     }
     return var;
 }
-quint64 Booking::calculate_price(const QJsonArray &books,quint64 per_hour)
+quint64 Booking::price(const QJsonArray &books,quint64 per_hour)
 {
     quint64 total=0;
-    auto vec=from_Array(books);
-    for (const auto &v:vec)total+=v.calculate_price(per_hour);
+    auto vec=fromArray(books);
+    for (const auto &v:vec)total+=v.price(per_hour);
     return total;
 }
 
-QJsonArray Booking::get_new_bookings_from_metadata(const QByteArray &metadata)
+QJsonArray Booking::metadataToBookings(const QByteArray metadata)
 {
     const auto var=QJsonDocument::fromJson(metadata).object();
     QJsonArray nbooks;
-    if(!var["bookings"].isUndefined()&&var["bookings"].isArray())
+    if(!var["b"].isUndefined()&&var["b"].isArray())
     {
-        auto books=var["bookings"].toArray();
+        auto books=var["b"].toArray();
         quint64 start=0;
         const auto now=QDateTime::currentDateTime().toSecsSinceEpoch();
         for(auto i=0;i<books.size();i++)
@@ -94,8 +105,8 @@ QJsonArray Booking::get_new_bookings_from_metadata(const QByteArray &metadata)
     }
     return QJsonArray();
 }
-QByteArray Booking::create_new_bookings_metadata(const QJsonArray &books)
+std::shared_ptr<const qiota::qblocks::Feature> Booking::bookingsToMetadata(const QJsonArray &books)
 {
-    const auto booking=QJsonObject({{"bookings",books}});
-    return QJsonDocument(booking).toJson();
+    const auto booking=QJsonObject({{"b",books}});
+    return qiota::qblocks::Feature::Metadata(QJsonDocument(booking).toJson());
 }

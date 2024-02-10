@@ -2,6 +2,7 @@ import QtLocation
 import QtPositioning
 import QtQuick
 import QtQuick.Controls
+import Esterv.DLockers.Client
 MapQuickItem {
             id: control
             required property real latitude;
@@ -9,28 +10,15 @@ MapQuickItem {
             required property string account;
             required property real score;
             required property int occupied;
-            signal selected(string account)
+            required property int index;
             signal showDirections(var coords)
-
-            Component.onCompleted:
-            {
-                console.log("latitude:",control.latitude);
-                console.log("longitude:",control.longitude);
-                console.log("account:",control.account);
-                console.log("score:",control.score);
-                console.log("occupied:",control.occupied);
-                console.log("coordinate:",control.coordinate);
-                console.log("visible:",control.visible);
-            }
-
             coordinate: QtPositioning.coordinate(latitude, longitude)
             autoFadeIn:false
-            sourceItem: Rectangle {
+            sourceItem: Image {
                 id: image
                 width:24
                 height:24
-                radius:24
-                color:"red"
+                source: "qrc:/esterVtech.com/imports/Esterv/Dlockers/Map/qml/icons/safety-box.png"
             }
             MouseArea
             {
@@ -45,11 +33,13 @@ MapQuickItem {
                closePolicy:Popup.CloseOnPressOutside
                focus:true
                modal:true
-               anchors.centerIn: Overlay.overlay
                score:control.score
                occupied:control.occupied
 
-               onSelected: control.selected(control.account);
+               onSelected:
+               {
+                    BookClient.setSelected(control.index);
+               }
                onShowDirections: control.showDirections(QtPositioning.coordinate(latitude, longitude));
            }
         }

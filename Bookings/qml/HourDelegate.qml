@@ -1,87 +1,117 @@
 import QtQuick 2.0
 import QtQuick.Controls
 import QtQuick.Layouts
-import booking_model
-import MyDesigns
+import QtQuick.Effects
+import Esterv.Dlockers.Bookings
+import Esterv.Styles.Simple
 
 
 RowLayout
 {    
-    id:root_box
+    id:control
 
-    required property bool can_book
-    required property bool booked
-    required property bool selected
-    required property bool sentbook
-    required property string hour
+    required property bool canBook
+    required property int hour
+    required property int state
     required property int index
-
 
     spacing:4
     Text {
-        id:time_
-        text: root_box.hour
-        color:"white"
+        id:time
+        text: (control.hour<12)?(((control.hour)?control.hour:12)+" " + Qt.locale().amText):((control.hour===12)?12:control.hour-12)+" "+ Qt.locale().pmText;
+        color: Style.frontColor1
+        font.family: Style.h1.family
+        font.pointSize:20
         Layout.preferredWidth: 80
         Layout.minimumWidth: 50
         Layout.fillHeight: true
         Layout.maximumWidth: 200
         Layout.alignment: Qt.AlignTop
         horizontalAlignment: Text.AlignRight
+
     }
     Rectangle
     {
-        id:line_
-        Layout.preferredWidth: 25
+        id:line
+        Layout.preferredWidth: 20
         Layout.preferredHeight:  2
-        Layout.maximumHeight:   20
+        Layout.maximumWidth: 40
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignTop
-        border.color:'white'
+        color:Style.frontColor2
+        border.color:Style.frontColor2
         border.width: 1
-        color:'white'
     }
 
     Rectangle
     {
+        id:box
         Layout.preferredWidth: 150
         Layout.fillHeight: true
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignHCenter
-        Layout.maximumWidth: 400
-        border.color:'white'
+        border.color:Style.frontColor2
         border.width: 1
-        height:parent.height
-        color: root_box.booked?'#e7001b':((root_box.selected?'#0f79af':'transparent'))
+        color: control.state===HourBox.Selected?Style.backColor3:'transparent'
         opacity:0.7
-        Rectangle
-        {
-            id: sent_
-            color:'#BCAF4D'
-            width:0.3*parent.width
-            height: parent.height
-            opacity:0.5
-            visible: root_box.sentbook
+
+        Image {
+            id:img
+            source: "qrc:/esterVtech.com/imports/Esterv/Dlockers/Bookings/qml/images/occupied.png"
+            visible:false
+            anchors.fill: parent
+        }
+        MultiEffect {
+            source: img
+            anchors.fill: img
+            colorizationColor: Style.frontColor1
+            colorization: 0.8
+            visible:control.state===HourBox.Occupied
         }
 
         Text
         {
+            anchors.fill: parent
+            text: control.state===HourBox.Selected?"-":"+"
+            fontSizeMode:Text.Fit
+            visible:(control.canBook&&(control.state===HourBox.Selected||control.state===HourBox.Free))
+            color:Style.frontColor1
+            verticalAlignment:Text.AlignVCenter
+            horizontalAlignment:Text.AlignHCenter
+            font:Style.h1
+        }
+        BusyIndicator {
             anchors.centerIn: parent
-            text:(root_box.selected)?'-':'+'
-            font.pointSize:20
-            visible:((!root_box.booked)&&root_box.can_book)
-            color:"white"
+            running: control.state===HourBox.Booking
+        }
+        Rectangle
+        {
+            anchors.verticalCenter: parent.verticalCenter
+            width:parent.width*0.4
+            height:parent.height*0.8
+            radius:5
+            color: Style.backColor3
+            border.color: Style.frontColor1
+            border.width: 1
+            visible: control.state===HourBox.Booked
+            Text
+            {
+                anchors.fill: parent
+                anchors.margins: 3
+                verticalAlignment:Text.AlignVCenter
+                horizontalAlignment:Text.AlignHCenter
+                fontSizeMode:Text.Fit
+                color:Style.frontColor1
+                text: qsTr("Booked")
+                font:Style.h2
+            }
         }
 
         MouseArea {
             anchors.fill: parent
-            enabled:root_box.can_book
+            enabled:control.canBook&&(control.state===HourBox.Free||control.state===HourBox.Selected)
             onClicked: {
-                if(!root_box.booked&&!root_box.sentbook)
-                {
-                    root_box.ListView.view.model.setProperty(root_box.index,"selected",!root_box.selected)
-                }
-
+                control.ListView.view.model.setProperty(control.index,"state",(control.state===HourBox.Free)?HourBox.Selected:HourBox.Free)
             }
         }
     }

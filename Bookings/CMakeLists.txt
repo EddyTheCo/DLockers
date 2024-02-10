@@ -21,6 +21,8 @@ if(Qt6_FOUND)
 		"qml/HourListView.qml"
 		RESOURCE_PREFIX
 		"/esterVtech.com/imports"
+                RESOURCES
+                "qml/images/occupied.png"
 		OUTPUT_TARGETS out_targets_var
 		OUTPUT_DIRECTORY
 		${CMAKE_BINARY_DIR}/Esterv/Dlockers/Bookings
@@ -31,7 +33,7 @@ if(Qt6_FOUND)
 	add_library(${PROJECT_NAME}::Bookingsplugin ALIAS Bookingsplugin)
 
 	target_compile_definitions(Bookings PRIVATE WINDOWS_BOOKI)
-	target_link_libraries(Bookings PUBLIC Qt6::Gui Qt6::Quick)
+        target_link_libraries(Bookings PUBLIC Qt6::Gui Qt6::Quick qblock)
 
 	target_link_libraries(Bookings PUBLIC EstervDesigns::SimpleStyle
 		$<$<STREQUAL:$<TARGET_PROPERTY:EstervDesigns::SimpleStyle,TYPE>,STATIC_LIBRARY>:EstervDesigns::SimpleStyleplugin>
@@ -55,7 +57,7 @@ if(Qt6_FOUND)
 		)
 	install(TARGETS Bookingsplugin
 		EXPORT ${PROJECT_NAME}-config
-		DESTINATION ${CMAKE_INSTALL_LIBDIR}/Esterv/Esterv/Dlockers
+                DESTINATION ${CMAKE_INSTALL_LIBDIR}/Esterv/Dlockers
 		COMPONENT Bookings
 		)
 

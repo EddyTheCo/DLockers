@@ -4,10 +4,8 @@ import QtQuick.Controls
 import QtQuick
 import QtQuick.Layouts
 import Esterv.Styles.Simple
-import Esterv.Iota.NodeConnection
-import Esterv.Iota.Account
-import Esterv.CustomControls.CoordToMap
-import Esterv.Iota.DLockerClient
+import Esterv.Dlockers.Map
+import Esterv.DLockers.Client
 
 
 ApplicationWindow {
@@ -15,19 +13,19 @@ ApplicationWindow {
     id:window
     FontLoader {
         id: webFont
-        source: "qrc:/esterVtech.com/imports/Esterv/Iota/DLockerClient/qml/fonts/DeliciousHandrawn-Regular.ttf"
+        source: "qrc:/esterVtech.com/imports/Esterv/DLockers/Client/qml/fonts/DeliciousHandrawn-Regular.ttf"
     }
     Component.onCompleted:
     {
         Style.h1=Qt.font({
                              family: webFont.font.family,
                              weight: webFont.font.weight,
-                             pixelSize: 28
+                             pixelSize: 60
                          });
         Style.h2=Qt.font({
                              family: webFont.font.family,
                              weight: webFont.font.weight,
-                             pixelSize: 28
+                             pixelSize: 30
                          });
     }
 
@@ -43,11 +41,65 @@ ApplicationWindow {
         height: window.height
     }
 
-    ObjectMapView
-    {
-        anchors.fill: parent
-        objModel: Book_Client
+    Connections {
+        target: BookClient
+        function onSelectedChanged() {
+            serversDetails.visible=true;
+            if(rlt.onecolumn)objmapview.visible=false;
+        }
     }
+    RowLayout
+    {
+        id: rlt
+        anchors.fill: parent
+        property bool onecolumn:(parent.width<600)
+
+        ListView
+        {
+            id:serversDetails
+            clip:true
+            interactive:false
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.maximumWidth: 500
+            Layout.minimumWidth: 350
+            Layout.alignment: Qt.AlignHCenter|Qt.AlignTop
+            visible:!rlt.onecolumn
+            model: BookClient
+            currentIndex:BookClient.selected
+            delegate:ServerDetailed
+            {
+                width:serversDetails.width
+                height:serversDetails.height
+            }
+
+        }
+
+
+        ObjectMapView
+        {
+            id:objmapview
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.minimumWidth: 300
+        }
+
+    }
+    AccountMenu
+    {
+        width:Math.min(350,parent.width)
+        height:200
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        onShowSettings: drawer.open();
+        showMapO:rlt.onecolumn&&!objmapview.visible
+        onShowMap:
+        {
+            objmapview.visible=true;
+            serversDetails.visible=false;
+        }
+    }
+
 
 }
 

@@ -1,7 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include "Qrimageprovider.hpp"
-#include"Qrimagedecoder.hpp"
+#include "Qrimagedecoder.hpp"
 
 #if defined(FORCE_STYLE)
 #include <QQuickStyle>
@@ -21,8 +21,7 @@ int main(int argc, char *argv[])
     engine.addImportPath("qrc:/esterVtech.com/imports");
 
 
-
-    const QUrl url(u"qrc:/esterVtech.com/imports/Esterv/Iota/DLockerClient/qml/window.qml"_qs);
+    const QUrl url(u"qrc:/esterVtech.com/imports/Esterv/DLockers/Client/qml/window.qml"_qs);
 	engine.load(url);
-	return app.exec();
+    return app.exec();
 }

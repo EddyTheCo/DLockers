@@ -1,20 +1,21 @@
-import QtQuick 2.0
-import QtQuick.Controls
-import booking_model
+pragma ComponentBehavior: Bound
+import QtQuick
+import Esterv.Dlockers.Bookings
 
 ListView {
-    id:horario
-    required property Hour_model horario_model
-    required property  bool can_book
+    id:control
+    required property HourModel hourModel
+    required property  bool canBook
 
     clip:true
     flickableDirection:Flickable.VerticalFlick
 
-    model: horario_model
-    delegate: Horario_delegate {
-        width:ListView.view.width
+    model: control.hourModel
+
+    delegate: HourDelegate {
+        width:control.width
         height:width*0.2
-        can_book:horario.can_book
+        canBook:control.canBook
     }
 
 

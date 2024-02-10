@@ -4,17 +4,17 @@ import QtQml
 import QtPositioning
 import QtLocation
 import QtQuick.Controls
-import Esterv.CustomControls.CoordToMap
+import Esterv.Dlockers.Map
+import Esterv.DLockers.Client
 
 MapView {
 
     id:control
 
-    property alias objModel:objView.model;
-    signal selected(string account)
 
     MapItemView {
         id: objView
+        model: BookClient
         delegate: ObjDelegate
         {
             onShowDirections: (coords) => {
@@ -23,7 +23,6 @@ MapView {
                 routequery.addWaypoint(coords);
                 routemodel.update();
             }
-            onSelected: (account) => control.selected(account);
         }
 
     }
@@ -59,13 +58,6 @@ MapView {
     }
 
 
-    onVisibleChanged: {
-        if(control.visible)
-        {
-            LocationPermisioner.checkPermission();
-        }
-    }
-
     Component.onCompleted: {
         control.map.addMapItem(marker);
         control.map.addMapItemView(objView);
@@ -80,8 +72,8 @@ MapView {
     }
 
     map.copyrightsVisible: false
-    map.zoomLevel:12
-    map.minimumZoomLevel:8
+    //map.zoomLevel:12
+    //map.minimumZoomLevel:8
 
 
     map.plugin: Plugin {
@@ -120,7 +112,10 @@ MapView {
         visible: LocationPermisioner.isGranted
         ToolTip.text: qsTr("Recenter")
         ToolTip.visible: hovered
-        onClicked: control.map.center = client.position.coordinate
+        onClicked:
+        {
+            control.map.center = client.position.coordinate;
+        }
         background: Rectangle
         {
             width:50

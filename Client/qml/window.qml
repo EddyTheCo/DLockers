@@ -44,16 +44,24 @@ ApplicationWindow {
     Connections {
         target: BookClient
         function onSelectedChanged() {
-            serversDetails.visible=true;
-            if(rlt.onecolumn)objmapview.visible=false;
+            if(rlt.onecolumn)
+            {
+                rlt.showmap=false;
+            }
+        }
+        function onOneColumnChanged(){
+            if(BookClient.onecolumn)
+            {
+                rlt.showmap=true;
+            }
         }
     }
     RowLayout
     {
         id: rlt
         anchors.fill: parent
-        property bool onecolumn:(parent.width<600)
-
+        property bool onecolumn:(parent.width<600&&!BookClient.isBrowser)||(BookClient.isBrowser&&BookClient.onecolumn)
+        property bool showmap: true
         ListView
         {
             id:serversDetails
@@ -62,9 +70,9 @@ ApplicationWindow {
             Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.maximumWidth: 500
-            Layout.minimumWidth: 350
+            Layout.minimumWidth: 300
             Layout.alignment: Qt.AlignHCenter|Qt.AlignTop
-            visible:!rlt.onecolumn
+            visible:!rlt.onecolumn||(rlt.onecolumn&&!rlt.showmap)
             model: BookClient
             currentIndex:BookClient.selected
             delegate:ServerDetailed
@@ -73,8 +81,8 @@ ApplicationWindow {
                 height:serversDetails.height
             }
 
-        }
 
+        }
 
         ObjectMapView
         {
@@ -82,6 +90,7 @@ ApplicationWindow {
             Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.minimumWidth: 300
+            visible:!rlt.onecolumn||(rlt.onecolumn&&rlt.showmap)
         }
 
     }
@@ -92,11 +101,10 @@ ApplicationWindow {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         onShowSettings: drawer.open();
-        showMapO:rlt.onecolumn&&!objmapview.visible
+        showMapO:rlt.onecolumn&&!rlt.showmap
         onShowMap:
         {
-            objmapview.visible=true;
-            serversDetails.visible=false;
+            rlt.showmap=true;
         }
     }
 

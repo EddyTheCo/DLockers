@@ -22,9 +22,12 @@ If everything is fine the server collect the money from the client, update its i
 The server allows you to open the locker if you own a NFT signed by the server.
 The signed NFT has immutable metadata that reference certain time interval of the bookings the client has paid.
 
-The server is configured to run on a raspberry-pi, with a 4g and GPS module.
+## Platformsi
+
+The server is configured to run on a raspberry-pi, with a 4g and GPS module by using the [evt yocto Layer](https://github.com/EddyTheCo/meta-evt)
 The server will set the pin 17(this can be configured) up when a valid NFT is received.
 The later will open the electrical locker.
-
 One using the GPS, the geographical position of the server will be public. 
-One can also setup a [mock-up Server](https://eddytheco.github.io/DLockers/MockupServer) for testing.
+
+One can also setup a [mock-up Server](https://eddytheco.github.io/DLockers/MockupServer) for testing just using the browser.
+The releases from this repo are also a mock-up Server.

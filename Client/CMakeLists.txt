@@ -18,7 +18,7 @@ endif()
 
 
 if(EMSCRIPTEN OR ANDROID)
-    find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml Multimedia QuickControls2)
+    find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml  QuickControls2)
     find_package(EstervDesigns 1.1 REQUIRED COMPONENTS FlatControl CONFIG )
 endif(EMSCRIPTEN OR ANDROID)
 

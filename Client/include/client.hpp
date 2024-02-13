@@ -4,7 +4,7 @@
 
 #include<QObject>
 #include<QString>
-#include <QtQml/qqmlregistration.h>
+#include <QtQml>
 #include "block/carray.hpp"
 #include "block/qoutputs.hpp"
 #include "qaddr_bundle.hpp"
@@ -90,6 +90,8 @@ class BookClient : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(int selected READ selected NOTIFY selectedChanged)
+    Q_PROPERTY(bool onecolumn READ oneColumn NOTIFY oneColumnChanged)
+    Q_PROPERTY(bool isBrowser READ isBrowser CONSTANT)
     QML_ELEMENT
     QML_SINGLETON
 
@@ -101,10 +103,23 @@ public:
     {
         return m_servers.size();
     }
+    static BookClient* instance()
+    {
+        if (!m_instance)
+        {
+            m_instance=new BookClient();
+        }
+        return m_instance;
+    }
+    static BookClient *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
+    {
+        return instance();
+    }
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
     Q_INVOKABLE bool setProperty(int i, QString role, const QVariant value);
     Q_INVOKABLE void setSelected(int ind);
     int selected(void)const{return m_selected;}
+    bool oneColumn()const{return m_oneColumn;}
     Q_INVOKABLE void sendBookings(int index)
     {
         if(index>-1&&index<m_servers.size())
@@ -122,15 +137,24 @@ public:
         return m_servers.size();
     }
     QVariant data(const QModelIndex &index, int role) const;
-
-    BookClient(QObject *parent = nullptr);
-
+    bool isBrowser()const{
+#ifdef USE_EMSCRIPTEN
+        return true;
+#else
+        return false;
+#endif
+    }
+#ifdef USE_EMSCRIPTEN
+    void resized(int width);
+#endif
 
 signals:
     void countChanged(int);
     void selectedChanged();
+    void oneColumnChanged();
 
 private:
+    BookClient(QObject *parent = nullptr);
     void resetData();
     void getBookings();
     void checkNFTforBook(std::shared_ptr<const qblocks::Output> output);
@@ -142,4 +166,9 @@ private:
     void getServer(std::shared_ptr<const Output>, c_array outId, QString hrp);
     int m_selected;
     QList<Server*> m_servers;
+    static BookClient * m_instance;
+    bool m_oneColumn;
+    void setOneColumn(bool oc){if(oc!=m_oneColumn){m_oneColumn=oc;emit oneColumnChanged();}}
+
+
 };

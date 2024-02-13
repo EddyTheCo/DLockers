@@ -11,6 +11,47 @@ using namespace qiota::qblocks;
 
 using namespace qiota;
 
+BookClient* BookClient::m_instance=nullptr;
+#ifdef USE_EMSCRIPTEN
+
+#include <emscripten.h>
+#include <emscripten/bind.h>
+
+EM_JS(void, js_addServer, (const size_t index,const float latitude,const float longitude,float score, quint8 occupied), {
+
+    const lockerIcon = L.icon({
+        iconUrl: 'img/safety-box.png',
+        iconSize: [24, 24],
+    });
+    var map = mapsPlaceholder.pop();
+
+    const serverMarker = L.marker([latitude, longitude],{icon:lockerIcon}).addTo(map);
+    serverMarker.bindPopup('Score: '+score+'/5.0<br>Occupied:'+
+                           occupied+
+                           '%<br> <button class="detailbutt">Details</button> ').on("popupopen", (a) => {
+                var popUp = a.target.getPopup();
+                popUp.getElement().querySelector(".detailbutt").addEventListener("click", e => {
+                        Module.BookClient.instance().setSelected(index);
+                    });
+            });
+
+
+});
+
+EMSCRIPTEN_BINDINGS(lockerClient) {
+    emscripten::class_<BookClient>("BookClient")
+        .function("setSelected", &BookClient::setSelected)
+        .function("resized", &BookClient::resized)
+        .class_function("instance", &BookClient::instance, emscripten::allow_raw_pointers());
+}
+
+void BookClient::resized(int width)
+{
+    setOneColumn(width<600);
+}
+
+#endif
+
 Server::Server(QString account,c_array outId, const quint64 pph, const c_array payAddress, const QJsonArray bookings,
                const float latitude, const float longitude, const float score, const quint8 occupied, QObject *parent )
     :QObject(parent),m_account(account),m_outId(outId),m_pph(pph),m_price(new Qml64(0,this)),m_payAddress(payAddress),
@@ -30,7 +71,6 @@ BookClient::BookClient(QObject *parent):QAbstractListModel(parent),m_selected(-1
     connect(Wallet::instance(),&Wallet::synced,this,[=](){
         resetData();
         getServerList();
-
     });
 
 }
@@ -76,6 +116,7 @@ void BookClient::checkNFTforBook(std::shared_ptr<const qblocks::Output> output)
         }
     }
 }
+
 void BookClient::setSelected(int ind)
 {
     if(ind<m_servers.size())
@@ -87,20 +128,6 @@ void BookClient::setSelected(int ind)
 }
 void BookClient::getServerList(void)
 {
-    //*****Testing***************//
-    /*auto nserver=new Server("rms1qqzpht5ur3m43ynz88rqeny83zzjueq77phgm97geyqwcmmju6keyq37s7s",
-                              c_array::fromHexString("0x4623856d6b79407a52052a65729f907588d30f7e0ad2a28b4efd66e2945435440000"),
-                              1000,
-                              c_array::fromHexString("0x007111d514f02adb5155cdf460afd3c39e565bd3fd1c22d3bd4201a373ad76130d"),
-                              {},41.902916,12.453389,3.0,50,this);
-    int i = m_servers.size();
-    beginInsertRows(QModelIndex(), i, i);
-    m_servers.append(nserver);
-    emit countChanged(count());
-    endInsertRows();
-*/
-    //*****Testing***************//
-
     auto info=NodeConnection::instance()->rest()->get_api_core_v2_info();
     connect(info,&Node_info::finished,this,[=]( ){
         auto nodeOutputs=NodeConnection::instance()->rest()->get_outputs<Output::Basic_typ>
@@ -195,7 +222,9 @@ void BookClient::deserializeState(const QString account,const c_array outId,cons
             }
         }
         auto nserver=new Server(account,outId,pricePerHour,payAddress,bookarray,latitude,longitude,score,occupied,this);
-
+#ifdef USE_EMSCRIPTEN
+        js_addServer(m_servers.size(),latitude,longitude,score,occupied);
+#endif
         connect(nserver,&Server::scoreChanged,this,[=]{
             const auto ind=idToIndex(nserver->outId());
             if(ind>-1)

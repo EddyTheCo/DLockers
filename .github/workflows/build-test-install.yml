@@ -33,7 +33,8 @@ jobs:
       qtTarget: 'lockersClient'
       qtVersion: '6.6.0'  
       cmakeArgs: '-DUSE_THREADS=ON -DBUILD_SERVER=OFF'  
-      qtArch: ${{ matrix.qtArch }}  
+      qtArch: ${{ matrix.qtArch }}
+      subdir: 'Client'
     secrets:
       QT_ANDROID_KEYSTORE_STORE_PASS:  ${{ secrets.QT_ANDROID_KEYSTORE_STORE_PASS }}
   release:

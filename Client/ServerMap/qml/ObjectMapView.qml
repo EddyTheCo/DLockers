@@ -107,7 +107,7 @@ MapView {
         height:56
         radius: 56
         anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        anchors.top: parent.top
         anchors.margins: 10
         visible: LocationPermisioner.isGranted
         ToolTip.text: qsTr("Recenter")

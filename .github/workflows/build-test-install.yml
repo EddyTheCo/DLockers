@@ -27,7 +27,7 @@ jobs:
       matrix:
         qtArch: ['android_arm64_v8a','android_armv7']  
 
-    uses: EddyTheCo/Common/.github/workflows/build-android.yml@v0.1.2
+    uses: EddyTheCo/Common/.github/workflows/build-android.yml@android_subdirectory
     with:
       qtModules: 'qtwebsockets qtshadertools qtmultimedia qtlocation qtpositioning'
       qtTarget: 'lockersClient'

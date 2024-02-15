@@ -74,7 +74,13 @@ Server::Server(QString account,c_array outId, const quint64 pph, const c_array p
     });
 
 }
-BookClient::BookClient(QObject *parent):QAbstractListModel(parent),m_selected(-1),m_oneColumn(js_getOneColumn())
+BookClient::BookClient(QObject *parent):QAbstractListModel(parent),m_selected(-1),m_oneColumn(
+#ifdef USE_EMSCRIPTEN
+          js_getOneColumn()
+#else
+          false
+#endif
+          )
 {
     Account::instance()->setVaultFile(
         QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/dlockerClient/qvault.bin");

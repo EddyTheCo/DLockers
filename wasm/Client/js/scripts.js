@@ -1,4 +1,5 @@
 var mapsPlaceholder = [];
+var serverMarkers = [];
 async function init() {
 
 

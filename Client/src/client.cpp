@@ -23,9 +23,10 @@ EM_JS(void, js_addServer, (const size_t index,const float latitude,const float l
         iconUrl: 'img/safety-box.png',
         iconSize: [24, 24],
     });
-    var map = mapsPlaceholder.pop();
-
-    const serverMarker = L.marker([latitude, longitude],{icon:lockerIcon}).addTo(map);
+    var map = mapsPlaceholder[0];
+    const serverMarker = new L.marker([latitude, longitude],{icon:lockerIcon});
+    map.addLayer(serverMarker);
+    serverMarkers.push(serverMarker);
     serverMarker.bindPopup('Score: '+score+'/5.0<br>Occupied:'+
                            occupied+
                            '%<br> <button class="detailbutt">Details</button> ').on("popupopen", (a) => {
@@ -36,6 +37,14 @@ EM_JS(void, js_addServer, (const size_t index,const float latitude,const float l
             });
 
 
+});
+
+EM_JS(void, js_clearServers, (), {
+    var map = mapsPlaceholder[0];
+    while (serverMarkers.length) {
+        var mark=serverMarkers.pop();
+        map.removeLayer(mark);
+    }
 });
 
 EMSCRIPTEN_BINDINGS(lockerClient) {
@@ -264,12 +273,16 @@ void BookClient::deserializeState(const QString account,const c_array outId,cons
 }
 void BookClient::resetData(void)
 {
-    for(auto ind=0;ind<count();ind++)
+#ifdef USE_EMSCRIPTEN
+    js_clearServers();
+#endif
+    const auto si=m_servers.size();
+    for(auto ind=0;ind<si;ind++)
     {
         m_servers[ind]->deleteLater();
-        m_servers.remove(ind);
     }
-    beginRemoveRows(QModelIndex(),0,count());
+    m_servers.clear();
+    beginRemoveRows(QModelIndex(),0,si);
     emit countChanged(count());
     endRemoveRows();
 }

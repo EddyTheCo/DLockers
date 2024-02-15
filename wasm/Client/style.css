@@ -4,6 +4,7 @@ html,body{
 	float:left;
 	min-height: 100%;
 	color: white;
+	background-color: #10141c;
 	font-family: 'Titillium Web';
 	font-size: 2vw;
 	margin: 0;
@@ -36,11 +37,11 @@ a{
 }
 #qtspinner
 {
-	position:fixed;
-	width:50%;
-	height:50%;
-	bottom: 25%;
-	right: 25%;
+	position:absolute;
+	width:80%;
+	height:40%;
+	top: 30%;
+	left: 10%;
 	display:block;
 	z-index: 1000
 }

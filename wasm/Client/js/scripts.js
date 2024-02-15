@@ -1,5 +1,7 @@
 var mapsPlaceholder = [];
 var serverMarkers = [];
+var mine;
+let qtModule = undefined;
 async function init() {
 
 
@@ -30,6 +32,22 @@ async function init() {
 				onLoaded: () =>
 				{
 					showUi(screen);
+					resized = function() {
+						if(document.documentElement.clientWidth<600)
+						{
+							document.getElementById("map").style.zIndex = "1000";
+							document.getElementById("qtrootDiv").style.zIndex = "1";
+							qtModule.BookClient.instance().setOneColumn(1);
+						}
+						else
+						{
+							qtModule.BookClient.instance().setOneColumn(0);
+						}
+
+						var canvas = document.getElementById("screen");
+						qtModule.qtResizeContainerElement(canvas);
+					}
+					window.addEventListener("resize", resized);
 					L.Map.addInitHook(function () {
 						mapsPlaceholder.push(this);
 					});
@@ -60,7 +78,8 @@ async function init() {
 					function initmapview(pos) {
 						const crd = pos.coords;
 
-						const mine = L.marker([crd.latitude,crd.longitude],{icon: mineMarker}).addTo(map);
+						mine = new L.marker([crd.latitude,crd.longitude],{icon: mineMarker});
+						map.addLayer(mine);
 						map.setView([crd.latitude,crd.longitude],13);
 						const recButt = document.querySelector("#recenter");
 						recButt.style.visibility="visible";
@@ -94,17 +113,6 @@ async function init() {
 
 			}
 		});
-		resized = function() {
-			if(document.documentElement.clientWidth<600)
-			{
-				document.getElementById("map").style.zIndex = "1000";
-				document.getElementById("qtrootDiv").style.zIndex = "1";
-			}
-			qtModule.BookClient.instance().resized(document.documentElement.clientWidth);
-			var canvas = document.getElementById("screen");
-			qtModule.qtResizeContainerElement(canvas);
-		}
-		window.addEventListener("resize", resized);
 	} catch (e) {
 		console.error(e);
 		console.error(e.stack);

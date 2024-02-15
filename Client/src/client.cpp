@@ -46,17 +46,19 @@ EM_JS(void, js_clearServers, (), {
         map.removeLayer(mark);
     }
 });
+EM_JS(int, js_getOneColumn, (), {
+    if(document.documentElement.clientWidth<600)
+    {
+        return 1;
+    }
+    return 0;
+});
 
 EMSCRIPTEN_BINDINGS(lockerClient) {
     emscripten::class_<BookClient>("BookClient")
         .function("setSelected", &BookClient::setSelected)
-        .function("resized", &BookClient::resized)
+        .function("setOneColumn", &BookClient::setOneColumn)
         .class_function("instance", &BookClient::instance, emscripten::allow_raw_pointers());
-}
-
-void BookClient::resized(int width)
-{
-    setOneColumn(width<600);
 }
 
 #endif
@@ -72,7 +74,7 @@ Server::Server(QString account,c_array outId, const quint64 pph, const c_array p
     });
 
 }
-BookClient::BookClient(QObject *parent):QAbstractListModel(parent),m_selected(-1)
+BookClient::BookClient(QObject *parent):QAbstractListModel(parent),m_selected(-1),m_oneColumn(js_getOneColumn())
 {
     Account::instance()->setVaultFile(
         QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/dlockerClient/qvault.bin");

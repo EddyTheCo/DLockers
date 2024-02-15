@@ -144,10 +144,8 @@ public:
         return false;
 #endif
     }
-#ifdef USE_EMSCRIPTEN
-    void resized(int width);
-#endif
 
+    void setOneColumn(bool oc){if(oc!=m_oneColumn){m_oneColumn=oc;emit oneColumnChanged();}}
 signals:
     void countChanged(int);
     void selectedChanged();
@@ -168,7 +166,7 @@ private:
     QList<Server*> m_servers;
     static BookClient * m_instance;
     bool m_oneColumn;
-    void setOneColumn(bool oc){if(oc!=m_oneColumn){m_oneColumn=oc;emit oneColumnChanged();}}
+
 
 
 };

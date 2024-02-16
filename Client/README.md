@@ -6,7 +6,7 @@ The Proof of Work has to be performed by the node.
 This application is meant to be used on the testnet.
 If using the mainnet **you are the ONLY responsible for the eventual loss of your funds**.
 
-One can download the client application from the releases of this repo or use the [web app](https://eddytheco.github.io/Dlockers/Client/)
+One can download the client application from the releases of this repo or use the [web app](https://eddytheco.github.io/DLockers/Client/)
 
 ## How to use it
 

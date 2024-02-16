@@ -9,7 +9,6 @@ import Esterv.DLockers.Client
 
 
 ApplicationWindow {
-    visible: true
     id:window
     FontLoader {
         id: webFont

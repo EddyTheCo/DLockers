@@ -3,6 +3,8 @@ var serverMarkers = [];
 async function init() {
 
 
+
+
 	document.body.innerHTML += '<figure  id="qtspinner"> <center > <img id="logo" crossorigin="anonymous" src="img/esterlogo.png" ></img> <div id="qtstatus"></div> </center> </figure>';
 
 
@@ -29,6 +31,18 @@ async function init() {
 			qt: {
 				onLoaded: () =>
 				{
+					document.getElementById("map").style.visibility = "visible";
+					L.Map.addInitHook(function () {
+						mapsPlaceholder.push(this);
+					});
+					const map = L.map('map').setView([51.505, -0.09], 13);
+
+					L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+						maxZoom: 19,
+						crossOrigin: "",
+						attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+					},
+					).addTo(map);
 					showUi(screen);
 					resized = function() {
 						if(document.documentElement.clientWidth<600)
@@ -48,19 +62,6 @@ async function init() {
 						instance.qtResizeContainerElement(canvas);
 					}
 					window.addEventListener("resize", resized);
-					L.Map.addInitHook(function () {
-						mapsPlaceholder.push(this);
-					});
-					document.getElementById("map").style.visibility = "visible";
-					const map = L.map('map').setView([51.505, -0.09], 13);
-
-
-					L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-						maxZoom: 19,
-						crossOrigin: "",
-						attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-					},
-					).addTo(map);
 					const options = {
 						enableHighAccuracy: true,
 						timeout: 5000,

@@ -35,10 +35,6 @@ EM_JS(void, js_getPos, (), {
     function success(pos) {
         const crd = pos.coords;
 
-        console.log("Your current position is:");
-        console.log(`Latitude : ${crd.latitude}`);
-        console.log(`Longitude: ${crd.longitude}`);
-        console.log(`More or less ${crd.accuracy} meters.`);
         Module.BookServer.instance().setCoords(crd.latitude,crd.longitude);
 
     }
@@ -213,7 +209,7 @@ void BookServer::restart(void)
 
 #include <QRandomGenerator>
 
-BookServer::BookServer(QObject *parent):QObject(parent),m_pph(10000),m_coords({-90+QRandomGenerator::system()->generateDouble()*180,-180+QRandomGenerator::system()->generateDouble()*360}),m_state(Ready),m_open(false),m_dayModel(new DayModel(this)),
+BookServer::BookServer(QObject *parent):QObject(parent),m_pph(10000),m_latitude(-90+QRandomGenerator::system()->generateDouble()*180),m_longitude(-180+QRandomGenerator::system()->generateDouble()*360),m_state(Ready),m_open(false),m_dayModel(new DayModel(this)),
     m_timer(new QTimer(this)),receiver(nullptr)
 {
     Account::instance()->setVaultFile(
@@ -228,7 +224,6 @@ BookServer::BookServer(QObject *parent):QObject(parent),m_pph(10000),m_coords({-
         Account::instance()->readFromVault(VAULT_PASS);
     }
 
-    //Account::instance()->setSeed("marriage casual adjust trim rail jungle impact view lyrics ginger taxi upset edit negative crystal base amount food wine suit vendor scrub arrow basket");
     m_instance=this;
     connect(Wallet::instance(),&Wallet::synced,this,[=](){
         restart();
@@ -248,9 +243,10 @@ void BookServer::initGPS(void)
         connect(PosSource,&QGeoPositionInfoSource::positionUpdated,
                 this, [=](const QGeoPositionInfo &update){
                     const auto geoCoord=update.coordinate();
-                    m_coords.at(0)=geoCoord.latitude();
-                    m_coords.at(1)=geoCoord.longitude();
-                    emit coordsChanged();
+                    m_latitude=geoCoord.latitude();
+                    m_longitude=geoCoord.longitude();
+                    emit latitudeChanged();
+                    emit longitudeChanged();
                 });
         connect(PosSource,&QGeoPositionInfoSource::errorOccurred,
                 this, [=](QGeoPositionInfoSource::Error _t1){
@@ -598,7 +594,7 @@ QByteArray BookServer::serializeState()const
     var.insert("b",bookings);
     var.insert("pph",QString::number(m_pph));
     var.insert("pt",(++Wallet::instance()->addresses().begin())->second->getAddressHash());
-    var.insert("c",QJsonArray({m_coords.at(0),m_coords.at(1)}));
+    var.insert("c",QJsonArray({m_latitude,m_longitude}));
     auto state = QJsonDocument(var);
     return state.toJson();
 }

@@ -1,8 +1,8 @@
 var mapsPlaceholder = [];
 var serverMarkers = [];
-var mine;
-let qtModule = undefined;
 async function init() {
+
+
 
 
 	document.body.innerHTML += '<figure  id="qtspinner"> <center > <img id="logo" crossorigin="anonymous" src="img/esterlogo.png" ></img> <div id="qtstatus"></div> </center> </figure>';
@@ -27,37 +27,15 @@ async function init() {
 		showUi(spinner);
 		status.innerHTML = 'Loading...';
 
-		qtModule = await qtLoad({
+		const	instance = await qtLoad({
 			qt: {
 				onLoaded: () =>
 				{
-					showUi(screen);
-					resized = function() {
-						if(document.documentElement.clientWidth<600)
-						{
-							document.getElementById("map").style.zIndex = "1000";
-							document.getElementById("qtrootDiv").style.zIndex = "1";
-							qtModule.BookClient.instance().setOneColumn(1);
-						}
-						else
-						{
-							qtModule.BookClient.instance().setOneColumn(0);
-						}
-
-						var canvas = document.getElementById("screen");
-						qtModule.qtResizeContainerElement(canvas);
-					}
-					window.addEventListener("resize", resized);
+					document.getElementById("map").style.visibility = "visible";
 					L.Map.addInitHook(function () {
 						mapsPlaceholder.push(this);
 					});
-					document.getElementById("map").style.visibility = "visible";
 					const map = L.map('map').setView([51.505, -0.09], 13);
-
-					const mineMarker = L.icon({
-						iconUrl: 'img/mineMarker.png',
-						iconSize: [24, 24],
-					});
 
 					L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 						maxZoom: 19,
@@ -65,6 +43,25 @@ async function init() {
 						attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 					},
 					).addTo(map);
+					showUi(screen);
+					resized = function() {
+						if(document.documentElement.clientWidth<600)
+						{
+							document.getElementById("map").style.visibility = "visible";
+							document.getElementById("qtrootDiv").style.visibility = "hidden";
+							instance.BookClient.instance().setOneColumn(1);
+						}
+						else
+						{
+							document.getElementById("map").style.visibility = "visible";
+							document.getElementById("qtrootDiv").style.visibility = "visible";
+							instance.BookClient.instance().setOneColumn(0);
+						}
+
+						var canvas = document.getElementById("screen");
+						instance.qtResizeContainerElement(canvas);
+					}
+					window.addEventListener("resize", resized);
 					const options = {
 						enableHighAccuracy: true,
 						timeout: 5000,
@@ -73,22 +70,22 @@ async function init() {
 
 					function success(pos) {
 						const crd = pos.coords;
-						mine.setLatLng([crd.latitude,crd.longitude]);
-					}
-					function initmapview(pos) {
-						const crd = pos.coords;
 
-						mine = new L.marker([crd.latitude,crd.longitude],{icon: mineMarker});
-						map.addLayer(mine);
-						map.setView([crd.latitude,crd.longitude],13);
-						const recButt = document.querySelector("#recenter");
-						recButt.style.visibility="visible";
-						recButt.onclick = () => {
-							map.setView(mine.getLatLng(),13);
-
-						};
-
-
+						if ( typeof success.mine == 'undefined' ) {
+							const mineMarker = L.icon({
+								iconUrl: 'img/mineMarker.png',
+								iconSize: [24, 24],
+							});
+							success.mine = new L.marker([crd.latitude,crd.longitude],{icon: mineMarker});
+							map.addLayer(success.mine);
+							map.setView([crd.latitude,crd.longitude],13);
+							const recButt = document.querySelector("#recenter");
+							recButt.style.visibility="inherit";
+							recButt.onclick = () => {
+								map.setView(success.mine.getLatLng(),13);
+							};
+						}
+						success.mine.setLatLng([crd.latitude,crd.longitude]);
 					}
 					function error(err) {
 						console.warn(`ERROR(${err.code}): ${err.message}`);
@@ -96,7 +93,6 @@ async function init() {
 					}
 
 					id = navigator.geolocation.watchPosition(success, error, options);
-					navigator.geolocation.getCurrentPosition(initmapview, error, options);
 
 				},
 				onExit: exitData =>

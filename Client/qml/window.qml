@@ -9,8 +9,8 @@ import Esterv.DLockers.Client
 
 
 ApplicationWindow {
-    visible: true
     id:window
+    visible:true
     FontLoader {
         id: webFont
         source: "qrc:/esterVtech.com/imports/Esterv/DLockers/Client/qml/fonts/DeliciousHandrawn-Regular.ttf"

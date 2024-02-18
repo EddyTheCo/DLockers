@@ -34,14 +34,12 @@ ApplicationWindow {
                          });
     }
 
-
     ConfDrawer
     {
         id:drawer
         width: Math.max(parent.width*0.2,350)
         height: window.height
     }
-
     ColumnLayout
     {
         anchors.fill: parent
@@ -64,9 +62,9 @@ ApplicationWindow {
             }
             Timer {
                 id:goback
-                    interval: 60000; running: false; repeat: false
-                    onTriggered: openbut.inOpenBox=false;
-                }
+                interval: 60000; running: false; repeat: false
+                onTriggered: openbut.inOpenBox=false;
+            }
         }
         RowLayout
         {
@@ -137,14 +135,17 @@ ApplicationWindow {
                 Layout.minimumHeight: 150
                 Layout.maximumHeight: width
                 Layout.alignment: Qt.AlignCenter
-                latitude:BookServer.coords[0]
-                longitude:BookServer.coords[1]
+                latitude: BookServer.latitude
+                longitude: BookServer.longitude
                 color:Style.frontColor2
             }
+
+
         }
 
 
 
     }
+
 }
 

@@ -7,13 +7,13 @@
 EM_JS(void, js_setVisible, (const bool visible), {
     if(visible)
     {
-        document.getElementById("map").style.zIndex = "1000";
-        document.getElementById("qtrootDiv").style.zIndex = "1";
+        document.getElementById("map").style.visibility = "visible";
+        document.getElementById("qtrootDiv").style.visibility = "hidden";
     }
     else
     {
-        document.getElementById("map").style.zIndex = "1";
-        document.getElementById("qtrootDiv").style.zIndex = "1000";
+        document.getElementById("map").style.visibility = "hidden";
+        document.getElementById("qtrootDiv").style.visibility = "visible";
     }
 });
 

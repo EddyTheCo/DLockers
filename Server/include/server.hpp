@@ -21,7 +21,8 @@ class BookServer : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool  open READ isOpen NOTIFY openChanged)
-    Q_PROPERTY(std::vector<qreal> coords READ coords NOTIFY coordsChanged)
+    Q_PROPERTY(float latitude READ latitude NOTIFY latitudeChanged)
+    Q_PROPERTY(float longitude READ longitude NOTIFY longitudeChanged)
     Q_PROPERTY(DayModel* dayModel  READ dayModel CONSTANT)
     Q_PROPERTY(State  state READ state NOTIFY stateChanged)
     Q_PROPERTY(QString  openAddress READ getOpenAddress NOTIFY openAddressChanged)
@@ -37,11 +38,14 @@ public:
     Q_ENUM(State)
     static BookServer* instance(){return m_instance;}
     DayModel* dayModel(void)const{return m_dayModel;}
-    std::vector<qreal> coords()const{return m_coords;}
+    qreal longitude()const{return m_longitude;}
+    qreal latitude()const{return m_latitude;}
     void setCoords(float lat,float lon)
     {
-        m_coords.at(0)=lat;
-        m_coords.at(1)=lon;
+        m_latitude=lat;
+        m_longitude=lon;
+	emit latitudeChanged();
+	emit longitudeChanged();
     }
     void setOpen(bool op){if(op!=m_open){m_open=op;emit openChanged();}}
     bool isOpen()const{return m_open;}
@@ -54,7 +58,8 @@ public:
 
 
 signals:
-    void coordsChanged();
+    void latitudeChanged();
+    void longitudeChanged();
     void stateChanged();
     void openChanged();
     void openAddressChanged();
@@ -79,7 +84,7 @@ private:
     void checkLPermission();
     void initGPS();
 
-    std::vector<qreal> m_coords;
+    qreal m_latitude,m_longitude;
     DayModel* m_dayModel;
     State m_state;
     c_array  m_pubId;

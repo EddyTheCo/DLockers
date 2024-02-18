@@ -39,9 +39,10 @@ Drawer
 
         NodeConnectionSettings
         {
-            id:conn_
+            id:conn
             Layout.fillWidth: true
         }
+
 
     }
 

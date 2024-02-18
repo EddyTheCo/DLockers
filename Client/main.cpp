@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     engine.addImportPath("qrc:/esterVtech.com/imports");
 
 
-    const QUrl url(u"qrc:/esterVtech.com/imports/Esterv/DLockers/Client/qml/window.qml"_qs);
+    const QUrl url("qrc:/esterVtech.com/imports/Esterv/DLockers/Client/qml/window.qml");
 	engine.load(url);
     return app.exec();
 }

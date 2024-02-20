@@ -3,7 +3,7 @@
 FetchContent_Declare(
     qrCode
     GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-    GIT_TAG  v1.0.3
+    GIT_TAG  v1.0.4
     FIND_PACKAGE_ARGS 1.0 CONFIG
 )
 set(BUILD_QRDEC ON)

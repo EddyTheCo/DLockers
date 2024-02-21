@@ -45,21 +45,21 @@ async function init() {
 					).addTo(map);
 					showUi(screen);
 					resized = function() {
-						if(document.documentElement.clientWidth<600)
-						{
-							document.getElementById("map").style.visibility = "visible";
-							document.getElementById("qtrootDiv").style.visibility = "hidden";
-							instance.BookClient.instance().setOneColumn(1);
-						}
-						else
-						{
-							document.getElementById("map").style.visibility = "visible";
-							document.getElementById("qtrootDiv").style.visibility = "visible";
-							instance.BookClient.instance().setOneColumn(0);
-						}
+						if( document.activeElement.type != 'text') {
+							if(document.documentElement.clientWidth<600)
+							{
+								document.getElementById("map").style.visibility = "visible";
+								document.getElementById("qtrootDiv").style.visibility = "hidden";
+								instance.BookClient.instance().setOneColumn(1);
+							}
+							else
+							{
+								document.getElementById("map").style.visibility = "visible";
+								document.getElementById("qtrootDiv").style.visibility = "visible";
+								instance.BookClient.instance().setOneColumn(0);
+							}
 
-						var canvas = document.getElementById("screen");
-						instance.qtResizeContainerElement(canvas);
+						}
 					}
 					window.addEventListener("resize", resized);
 					const options = {

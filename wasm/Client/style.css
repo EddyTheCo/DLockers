@@ -37,10 +37,10 @@ a{
 #qtspinner
 {
 	position:absolute;
-	width:80%;
-	height:40%;
-	top: 30%;
-	left: 10%;
+	width:130%;
+	height:80%;
+	top: 10%;
+	left: -25%;
 	display:block;
 	z-index: 1000
 }
@@ -130,5 +130,10 @@ footer
 		height: 100%;
 		width: 50%;
 		left: 50%;
+	}
+	#qtspinner
+	{
+		width:100%;
+		left: 0%;
 	}
 }

@@ -21,3 +21,27 @@ To do this, this application sends the NFT to a server address but with expirati
 and can reuse it as many times as you want.
 
 
+## Getting the Client app
+
+### From source code
+```
+git clone https://github.com/EddyTheCo/DLockers.git 
+
+mkdir build
+cd build
+qt-cmake -G Ninja -DCMAKE_INSTALL_PREFIX=installDir -DCMAKE_BUILD_TYPE=Release -DQTDEPLOY=ON -DUSE_THREADS=ON -DBUILD_SERVER=OFF ../Dlockers
+
+cmake --build . 
+
+cmake --install . 
+```
+where `installDir` is the installation path, `QTDEPLOY` install Qt dependencies(To be used only if compiling the desktop app). 
+The use of multithreading is controlled by the `USE_THREADS` variable.
+The `-DBUILD_SERVER=OFF`  has to be set if compiling for Android, because the server is not meant to run on Android.
+
+The application major dependencies are the  [Qt](https://doc.qt.io/), [OpenCV](https://github.com/opencv/opencv) and [openssl](https://github.com/openssl/openssl) libraries.
+
+For more information on how to compile for the different platforms refer to the GitHub workflows of the repo. 
+### From GitHub releases
+Download the releases from this repo.  
+

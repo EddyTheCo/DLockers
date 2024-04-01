@@ -17,7 +17,7 @@ by entering the Client account.
 
 If the book and payment are accepted by the server, the server will send the client an NFT signed by the server.
 By presenting this NFT to the server you can open the locker.
-To do this, this application sends the NFT to a server address but with expiration time in the past, so you continue owning the NFT
+To do this, this application sends the NFT to a server address but with an expiration time in the past, so you continue owning the NFT
 and can reuse it as many times as you want.
 
 
